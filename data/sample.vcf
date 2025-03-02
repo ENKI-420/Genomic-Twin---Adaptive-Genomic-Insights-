@@ -1,0 +1,47 @@
+##fileformat=VCFv4.2
+##fileDate=20231114
+##source=CancerGenomicsWorkflow
+##reference=GRCh38
+##INFO=<ID=ANN,Number=.,Type=String,Description="Functional annotations: 'Allele | Annotation | Impact | Gene_Name | Gene_ID | Feature_Type | Feature_ID | Transcript_BioType | Rank | HGVS.c | HGVS.p | cDNA.pos / cDNA.length | CDS.pos / CDS.length | AA.pos / AA.length | Distance | ERRORS / WARNINGS / INFO'">
+##INFO=<ID=COSMIC,Number=.,Type=String,Description="COSMIC ID of known mutation">
+##INFO=<ID=CLIN_SIG,Number=.,Type=String,Description="Clinical significance">
+##contig=<ID=chr1,length=248956422>
+##contig=<ID=chr2,length=242193529>
+##contig=<ID=chr3,length=198295559>
+##contig=<ID=chr4,length=190214555>
+##contig=<ID=chr5,length=181538259>
+##contig=<ID=chr7,length=159345973>
+##contig=<ID=chr12,length=133275309>
+##contig=<ID=chr17,length=83257441>
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	SAMPLE1
+chr7	55249071	rs121434568	G	T	.	PASS	ANN=T|missense_variant|HIGH|EGFR|ENSG00000146648|transcript|ENST00000275493|protein_coding|21/28|c.2573T>G|p.Leu858Arg|2573/4283|2573/3633|858/1210||;COSMIC=COSM6224;CLIN_SIG=Pathogenic	GT:AD:DP:AF	0/1:43,38:81:0.469
+chr7	55242464	rs121913529	G	A	.	PASS	ANN=A|missense_variant|HIGH|EGFR|ENSG00000146648|transcript|ENST00000275493|protein_coding|19/28|c.2369C>T|p.Thr790Met|2369/4283|2369/3633|790/1210||;COSMIC=COSM6240;CLIN_SIG=Pathogenic	GT:AD:DP:AF	0/1:46,35:81:0.432
+chr7	55249005	rs121913230	C	T	.	PASS	ANN=T|missense_variant|HIGH|EGFR|ENSG00000146648|transcript|ENST00000275493|protein_coding|21/28|c.2503G>A|p.Glu834Lys|2503/4283|2503/3633|834/1210||;COSMIC=COSM96870;CLIN_SIG=Pathogenic	GT:AD:DP:AF	0/1:51,42:93:0.452
+chr7	55242514	.	AGGAATTAAGAGAAGC	A	.	PASS	ANN=A|frameshift_variant|HIGH|EGFR|ENSG00000146648|transcript|ENST00000275493|protein_coding|19/28|c.2235_2249del|p.Glu746_Ala750del|2235/4283|2235/3633|746/1210||;COSMIC=COSM6223;CLIN_SIG=Pathogenic	GT:AD:DP:AF	0/1:38,41:79:0.519
+chr12	25398284	rs121913527	C	T	.	PASS	ANN=T|missense_variant|HIGH|KRAS|ENSG00000133703|transcript|ENST00000311936|protein_coding|2/5|c.35G>A|p.Gly12Asp|287/1119|35/567|12/189||;COSMIC=COSM521;CLIN_SIG=Pathogenic	GT:AD:DP:AF	0/1:54,58:112:0.518
+chr12	25398285	rs121913529	C	A	.	PASS	ANN=A|missense_variant|HIGH|KRAS|ENSG00000133703|transcript|ENST00000311936|protein_coding|2/5|c.34G>T|p.Gly12Cys|286/1119|34/567|12/189||;COSMIC=COSM516;CLIN_SIG=Pathogenic	GT:AD:DP:AF	0/1:60,48:108:0.444
+chr12	25398281	rs121913530	T	G	.	PASS	ANN=G|missense_variant|HIGH|KRAS|ENSG00000133703|transcript|ENST00000311936|protein_coding|2/5|c.38A>C|p.Gln13Pro|290/1119|38/567|13/189||;COSMIC=COSM1159655;CLIN_SIG=Pathogenic	GT:AD:DP:AF	0/1:44,39:83:0.470
+chr17	7577539	rs28934578	G	A	.	PASS	ANN=A|missense_variant|HIGH|TP53|ENSG00000141510|transcript|ENST00000269305|protein_coding|7/11|c.742C>T|p.Arg248Trp|833/2579|742/1182|248/393||;COSMIC=COSM10656;CLIN_SIG=Pathogenic	GT:AD:DP:AF	0/1:36,37:73:0.507
+chr17	7577121	rs28934576	G	A	.	PASS	ANN=A|missense_variant|HIGH|TP53|ENSG00000141510|transcript|ENST00000269305|protein_coding|8/11|c.818G>A|p.Arg273His|909/2579|818/1182|273/393||;COSMIC=COSM10660;CLIN_SIG=Pathogenic	GT:AD:DP:AF	0/1:41,42:83:0.506
+chr17	7578389	rs876659486	C	T	.	PASS	ANN=T|stop_gained|HIGH|TP53|ENSG00000141510|transcript|ENST00000269305|protein_coding|6/11|c.637C>T|p.Arg213Ter|728/2579|637/1182|213/393||;COSMIC=COSM43928;CLIN_SIG=Pathogenic	GT:AD:DP:AF	0/1:47,41:88:0.466
+chr17	7578458	.	CA	C	.	PASS	ANN=C|frameshift_variant|HIGH|TP53|ENSG00000141510|transcript|ENST00000269305|protein_coding|6/11|c.569delA|p.Ile190fs|660/2579|569/1182|190/393||;CLIN_SIG=Pathogenic	GT:AD:DP:AF	0/1:48,37:85:0.435
+chr3	178936091	rs113488022	G	A	.	PASS	ANN=A|missense_variant|HIGH|PIK3CA|ENSG00000121879|transcript|ENST00000263967|protein_coding|10/21|c.1633G>A|p.Glu545Lys|1833/9093|1633/3207|545/1068||;COSMIC=COSM763;CLIN_SIG=Pathogenic	GT:AD:DP:AF	0/1:40,43:83:0.518
+chr3	178952085	rs121913279	A	G	.	PASS	ANN=G|missense_variant|HIGH|PIK3CA|ENSG00000121879|transcript|ENST00000263967|protein_coding|21/21|c.3140A>G|p.His1047Arg|3340/9093|3140/3207|1047/1068||;COSMIC=COSM775;CLIN_SIG=Pathogenic	GT:AD:DP:AF	0/1:52,47:99:0.475
+chr7	140453136	rs113488022	A	T	.	PASS	ANN=T|missense_variant|HIGH|BRAF|ENSG00000157764|transcript|ENST00000288602|protein_coding|15/18|c.1799T>A|p.Val600Glu|1857/2463|1799/2301|600/766||;COSMIC=COSM476;CLIN_SIG=Pathogenic	GT:AD:DP:AF	0/1:49,37:86:0.430
+chr7	140453137	.	C	T	.	PASS	ANN=T|missense_variant|MODERATE|BRAF|ENSG00000157764|transcript|ENST00000288602|protein_coding|15/18|c.1798G>A|p.Val600Met|1856/2463|1798/2301|600/766||;COSMIC=COSM1133;CLIN_SIG=Likely_pathogenic	GT:AD:DP:AF	0/1:45,35:80:0.438
+chr4	55141055	rs1057519372	A	G	.	PASS	ANN=G|missense_variant|MODERATE|PDGFRA|ENSG00000134853|transcript|ENST00000257290|protein_coding|18/23|c.2525A>G|p.Asp842Gly|2604/4929|2525/3300|842/1089||;COSMIC=COSM33711;CLIN_SIG=Likely_pathogenic	GT:AD:DP:AF	0/1:38,42:80:0.525
+chr2	212812097	rs2228001	T	G	.	PASS	ANN=G|missense_variant|MODERATE|ERBB4|ENSG00000178568|transcript|ENST00000342788|protein_coding|24/28|c.3508T>G|p.Tyr1170Asp|3637/5990|3508/3921|1170/1306||;CLIN_SIG=Uncertain_significance	GT:AD:DP:AF	0/1:37,33:70:0.471
+chr17	37880991	rs786201577	AT	A	.	PASS	ANN=A|frameshift_variant|HIGH|ERBB2|ENSG00000141736|transcript|ENST00000269571|protein_coding|27/31|c.3418delA|p.Asn1140fs|3551/4824|3418/3768|1140/1255||;CLIN_SIG=Pathogenic	GT:AD:DP:AF	0/1:43,38:81:0.469
+
+##fileformat=VCFv4.2
+##fileDate=20240605
+##source=CancerGenomeAnalysisPipeline
+##reference=GRCh38/hg38
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Total Depth">
+##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency">
+##INFO=<ID=ANN,Number=.,Type=String,Description="Functional annotations: 'Allele | Annotation | Impact | Gene_Name | Gene_ID | Feature_Type | Feature_ID | Transcript_BioType | Rank | HGVS.c | HGVS.p | cDNA.pos / cDNA.length | CDS.pos / CDS.length | AA.pos / AA.length | Distance | ERRORS / WARNINGS / INFO'">
+##FILTER=<ID=PASS,Description="All filters passed">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=AD,Number=R,Type=Integer,Description="Allelic depths">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read depth">
+

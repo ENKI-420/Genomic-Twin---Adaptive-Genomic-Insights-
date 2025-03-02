@@ -1,3 +1,98 @@
+import pandas as pd
+import numpy as np
+import random
+
+
+def generate_digital_twin(patient_data, therapies, days):
+    """
+    Generate a digital twin simulation of tumor volume over time for different therapies.
+    
+    Parameters:
+    -----------
+    patient_data : dict or None
+        Patient data including genetic information and baseline tumor characteristics.
+        If None, default parameters will be used.
+    therapies : list
+        List of therapy names to simulate.
+    days : int
+        Number of days to simulate.
+        
+    Returns:
+    --------
+    pandas.DataFrame
+        DataFrame with columns: 'day', 'tumor_volume', and 'therapy'
+    """
+    # Create empty dataframe to store results
+    results = pd.DataFrame(columns=['day', 'tumor_volume', 'therapy'])
+    
+    # Default parameters if patient_data is None
+    if patient_data is None:
+        base_volume = 100
+        growth_rate = 0.05
+        drug_sensitivity = {
+            "Pembrolizumab": 0.7,
+            "Olaparib": 0.6,
+            "Carfilzomib": 0.5,
+            "Sacituzumab": 0.65
+        }
+    else:
+        # Extract patient-specific parameters
+        # This would normally involve sophisticated modeling based on genomic data
+        base_volume = patient_data.get('tumor_volume', 100)
+        growth_rate = patient_data.get('growth_rate', 0.05)
+        
+        # Simulate personalized drug responses based on genomic markers
+        drug_sensitivity = {
+            "Pembrolizumab": 0.5 + 0.5 * random.random(),
+            "Olaparib": 0.4 + 0.5 * random.random(),
+            "Carfilzomib": 0.3 + 0.6 * random.random(),
+            "Sacituzumab": 0.45 + 0.5 * random.random()
+        }
+    
+    # Always include a 'No Treatment' option for comparison
+    all_therapies = therapies.copy()
+    if therapies:
+        all_therapies.append("No Treatment")
+    else:
+        all_therapies = ["No Treatment"]
+    
+    # Generate time series for each therapy
+    for therapy in all_therapies:
+        # Initialize tumor volume
+        volume = base_volume
+        
+        if therapy == "No Treatment":
+            efficacy = 0
+        else:
+            # Get therapy efficacy from drug sensitivity dictionary
+            efficacy = drug_sensitivity.get(therapy, 0.5)
+        
+        # Generate data for each day
+        for day in range(days + 1):
+            # Add current day's data to results
+            results = pd.concat([results, pd.DataFrame({
+                'day': [day],
+                'tumor_volume': [volume],
+                'therapy': [therapy]
+            })], ignore_index=True)
+            
+            # Calculate tumor volume change
+            if therapy == "No Treatment":
+                # Natural growth without treatment
+                volume *= (1 + growth_rate)
+            else:
+                # Growth with treatment effect
+                treatment_effect = efficacy * (1 + 0.1 * np.sin(day / 10))  # Add some oscillation to make it more realistic
+                volume *= (1 + growth_rate - treatment_effect * growth_rate * 3)
+                
+                # Add some randomness to simulate real-world variability
+                volume *= (0.98 + 0.04 * random.random())
+                
+                # Ensure volume doesn't go negative or too small
+                volume = max(volume, base_volume * 0.01)
+    
+    return results
+
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -10,7 +105,9 @@ def generate_digital_twin(
     cancer_type=None, 
     stage=None, 
     genetic_markers=None, 
-    num_timepoints=10
+    num_timepoints=10,
+    therapies=None,
+    days=None
 ):
     """
     Generate a simulated digital twin for oncology analysis.
@@ -29,6 +126,10 @@ def generate_digital_twin(
         List of genetic markers present in the patient
     num_timepoints : int, optional
         Number of timepoints to simulate for the patient journey
+    therapies : str or list, optional
+        Specific treatments to use instead of random selection
+    days : int, optional
+        Number of days to simulate (if provided, overrides num_timepoints)
         
     Returns:
     --------
@@ -51,6 +152,10 @@ def generate_digital_twin(
     if genetic_markers is None:
         possible_markers = ['BRCA1', 'BRCA2', 'TP53', 'KRAS', 'EGFR', 'ALK', 'HER2', 'BRAF', 'PTEN', 'RB1']
         genetic_markers = random.sample(possible_markers, random.randint(1, 5))
+        
+    # Use days parameter if provided, otherwise use num_timepoints
+    if days is not None:
+        num_timepoints = days
     
     # Generate patient ID
     patient_id = f"PT{random.randint(10000, 99999)}"
@@ -68,7 +173,15 @@ def generate_digital_twin(
     
     # Select appropriate treatments based on cancer type and stage
     available_treatments = treatments.get(cancer_type, ['Chemotherapy', 'Radiation'])
-    primary_treatment = random.choice(available_treatments)
+    
+    # Use provided therapies if available, otherwise choose randomly
+    if therapies is not None:
+        if isinstance(therapies, list):
+            primary_treatment = therapies[0] if therapies else random.choice(available_treatments)
+        else:
+            primary_treatment = therapies
+    else:
+        primary_treatment = random.choice(available_treatments)
     
     # Determine treatment response probability based on stage
     response_probability = {
