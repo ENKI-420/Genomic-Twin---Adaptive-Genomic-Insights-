@@ -1,6 +1,15 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+mport matplotlib.pyplot as plt  # Now included in requirements
+
+def analyze_mutations(patient_data):
+    """Enhanced mutation analysis with visualization"""
+    # Implementation logic here
+    return {
+        'drivers': pd.DataFrame(...),
+        'resistance': {...},
+        'therapies': [...]
+    }
 from typing import Tuple, Dict
 from Bio.SeqUtils import ProtParam
 from sklearn.neural_network import MLPRegressor
