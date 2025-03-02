@@ -6,3 +6,5 @@ biopython
 plotly
 matplotlib
 seaborn
+lifelines
+

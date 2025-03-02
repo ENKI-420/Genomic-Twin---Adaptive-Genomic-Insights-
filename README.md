@@ -11,6 +11,7 @@ This project is an AI-powered platform designed for oncology analysis and resear
 - **CRISPR AI**: AI-assisted CRISPR gene editing for cancer research
 - **Nanoparticle Simulation**: Simulate nanoparticle drug delivery systems
 - **Clinical Trials**: Tools for analyzing and managing clinical trial data
+- **Data Visualization**: Interactive visualizations for gene expression, mutation heatmaps, and survival analysis
 
 ## Project Structure
 
@@ -24,7 +25,8 @@ This project is an AI-powered platform designed for oncology analysis and resear
     ├── mutation_analysis.py      # Mutation analysis module
     ├── crispr_ai.py              # CRISPR gene editing AI module
     ├── nanoparticle_simulation.py # Nanoparticle simulation tools
-    └── clinical_trials.py        # Clinical trials analysis tools
+    ├── clinical_trials.py        # Clinical trials analysis tools
+    └── visualization.py          # Data visualization module for plots and interactive charts
 ```
 
 ## Installation
@@ -62,7 +64,7 @@ This project is an AI-powered platform designed for oncology analysis and resear
    - CRISPR AI
    - Nanoparticle Simulation
    - Clinical Trials
-
+   - Data Visualization
 ## Development
 
 ### Adding New Modules

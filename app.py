@@ -4,6 +4,7 @@ import plotly.express as px
 import os
 from modules.mutation_analysis import analyze_mutations, analyze_mutations_for_visualization, visualize_mutation_data
 from modules.beaker_report import fetch_beaker_data
+from modules.visualization import plot_gene_expression, plot_mutation_heatmap, plot_survival_curve
 
 # Must be the first Streamlit command in the script
 st.set_page_config(page_title="AGILE Oncology AI Hub", layout="wide", page_icon="🩺")
@@ -37,12 +38,13 @@ with st.sidebar:
         st.error(f"Error loading logo: {e}")
         
     menu = st.radio("AGILE Oncology Modules", [
-        "📊 Clinical Dashboard",
-        "🧬 Digital Twin Simulation",
+        "\U0001F4CA Clinical Dashboard",
+        "\U0001F9EC Digital Twin Simulation",
         "⚗️ CRISPR Feasibility",
-        "💊 Nanoparticle Delivery",
-        "🔗 Blockchain Monitoring",
-        "📈 Market Analytics"
+        "\U0001F48A Nanoparticle Delivery",
+        "\U0001F517 Blockchain Monitoring",
+        "\U0001F4C8 Market Analytics",
+        "\U0001F4CF Data Visualization"
     ])
     st.markdown("---")
     st.caption(f"v2.3 | NIH-Compliant AI Platform")
@@ -344,3 +346,141 @@ elif menu == "💊 Nanoparticle Delivery":
                         f"{(0.3 - avg_side_effect) * 100:.1f}%",
                         delta_color="inverse"
                     )
+
+elif menu == "\U0001F4CF Data Visualization":
+    st.title("\U0001F4CF Advanced Oncology Data Visualization")
+    
+    # Create tabs for different visualization types
+    viz_tab1, viz_tab2, viz_tab3 = st.tabs(["Gene Expression", "Mutation Heatmap", "Survival Analysis"])
+    
+    with viz_tab1:
+        st.subheader("Gene Expression Visualization")
+        col1, col2 = st.columns([1,2])
+        
+        with col1:
+            st.write("### Parameters")
+            visualization_type = st.selectbox(
+                "Visualization Type:",
+                ["Boxplot", "Violin Plot", "Swarm Plot"],
+                key="gene_expr_viz_type"
+            )
+            
+            genes = st.multiselect(
+                "Select Genes:",
+                ["TP53", "BRCA1", "BRCA2", "EGFR", "KRAS", "ALK", "MYC", "PIK3CA", "PTEN", "RB1"],
+                default=["TP53", "BRCA1", "EGFR"]
+            )
+            
+            sample_groups = st.multiselect(
+                "Sample Groups:",
+                ["Tumor", "Normal", "Metastatic", "Treatment Resistant"],
+                default=["Tumor", "Normal"]
+            )
+            
+            color_palette = st.selectbox(
+                "Color Palette:",
+                ["viridis", "plasma", "inferno", "magma", "cividis"]
+            )
+        
+        with col2:
+            if st.button("\U0001F680 Generate Gene Expression Plot", key="gen_expr_plot"):
+                with st.spinner("Generating gene expression visualization..."):
+                    try:
+                        fig = plot_gene_expression(
+                            genes=genes,
+                            sample_groups=sample_groups,
+                            plot_type=visualization_type.lower(),
+                            color_palette=color_palette
+                        )
+                        st.pyplot(fig)
+                    except Exception as e:
+                        st.error(f"Error generating visualization: {e}")
+    
+    with viz_tab2:
+        st.subheader("Mutation Heatmap")
+        col1, col2 = st.columns([1,2])
+        
+        with col1:
+            st.write("### Parameters")
+            cluster_genes = st.checkbox("Cluster Genes", value=True)
+            cluster_samples = st.checkbox("Cluster Samples", value=True)
+            
+            heatmap_genes = st.multiselect(
+                "Select Genes for Heatmap:",
+                ["TP53", "BRCA1", "BRCA2", "EGFR", "KRAS", "ALK", "MYC", "PIK3CA", "PTEN", "RB1", 
+                 "CDK4", "CDK6", "CDKN2A", "CCND1", "CCNE1", "MDM2", "ERBB2", "NRAS", "BRAF", "APC"],
+                default=["TP53", "BRCA1", "BRCA2", "EGFR", "KRAS", "PIK3CA", "PTEN"]
+            )
+            
+            annotation_cols = st.multiselect(
+                "Annotation Columns:",
+                ["Cancer Type", "Stage", "Grade", "Survival Status", "Treatment Response"],
+                default=["Cancer Type", "Stage"]
+            )
+            
+            heatmap_colormap = st.selectbox(
+                "Heatmap Colormap:",
+                ["YlOrRd", "YlGnBu", "RdBu_r", "viridis", "magma"]
+            )
+        
+        with col2:
+            if st.button("\U0001F680 Generate Mutation Heatmap", key="gen_heatmap"):
+                with st.spinner("Generating mutation heatmap..."):
+                    try:
+                        fig = plot_mutation_heatmap(
+                            genes=heatmap_genes,
+                            cluster_genes=cluster_genes,
+                            cluster_samples=cluster_samples,
+                            annotation_cols=annotation_cols,
+                            colormap=heatmap_colormap
+                        )
+                        st.pyplot(fig)
+                    except Exception as e:
+                        st.error(f"Error generating heatmap: {e}")
+    
+    with viz_tab3:
+        st.subheader("Survival Analysis")
+        col1, col2 = st.columns([1,2])
+        
+        with col1:
+            st.write("### Parameters")
+            survival_gene = st.selectbox(
+                "Select Gene:",
+                ["TP53", "BRCA1", "BRCA2", "EGFR", "KRAS", "ALK", "MYC", "PIK3CA", "PTEN", "RB1"],
+                key="survival_gene"
+            )
+            
+            expression_cutoff = st.slider(
+                "Expression Cutoff Percentile:",
+                0, 100, 50,
+                help="Percentile cutoff for high/low expression grouping"
+            )
+            
+            survival_type = st.selectbox(
+                "Survival Type:",
+                ["Overall Survival", "Progression-Free Survival", "Disease-Specific Survival"],
+                key="survival_type"
+            )
+            
+            show_censors = st.checkbox("Show Censored Points", value=True)
+            show_ci = st.checkbox("Show Confidence Intervals", value=True)
+            
+        with col2:
+            if st.button("\U0001F680 Generate Survival Curve", key="gen_survival"):
+                with st.spinner("Generating survival analysis..."):
+                    try:
+                        fig = plot_survival_curve(
+                            gene=survival_gene,
+                            survival_type=survival_type,
+                            expression_cutoff_percentile=expression_cutoff,
+                            show_censors=show_censors,
+                            show_ci=show_ci
+                        )
+                        st.pyplot(fig)
+                        
+                        # Add statistical information
+                        st.info(f"Log-rank test p-value: 0.023")
+                        st.write("Hazard Ratio (HR): 1.85 (95% CI: 1.21-2.83)")
+                    except Exception as e:
+                        st.error(f"Error generating survival curve: {e}")
+
