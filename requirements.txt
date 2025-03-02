@@ -3,3 +3,6 @@ pandas
 plotly
 plotly.express
 requests
+matplotlib==3.9.0  # Add missing dependency
+scikit-learn==1.5.0
+biopython==1.83
