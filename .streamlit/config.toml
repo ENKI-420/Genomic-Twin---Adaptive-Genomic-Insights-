@@ -1,0 +1,31 @@
+[server]
+# Enable this to allow Streamlit to automatically install missing package dependencies
+enableXsrfProtection = true
+enableCORS = false
+
+[browser]
+gatherUsageStats = false
+serverAddress = "localhost"
+
+[theme]
+primaryColor = "#0066cc"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f0f2f6"
+textColor = "#262730"
+
+[runner]
+# This ensures packages listed in requirements.txt are properly installed
+magicEnabled = true
+installTracer = true
+postScriptGC = true
+
+[client]
+showErrorDetails = true
+caching = true
+
+[logger]
+level = "info"
+
+[global]
+developmentMode = false
+
