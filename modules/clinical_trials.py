@@ -14,15 +14,126 @@ import time
 from dataclasses import dataclass
 from typing import List, Dict, Optional, Any, Tuple, Set, Union
 from functools import lru_cache
-from retrying import retry
-from fuzzywuzzy import fuzz
-from geopy.distance import geodesic
-import spacy
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.feature_extraction.text import TfidfVectorizer
-import joblib
 import warnings
 import re
+
+# Make retrying optional
+try:
+    from retrying import retry
+    RETRYING_AVAILABLE = True
+except ImportError:
+    RETRYING_AVAILABLE = False
+    # Create a fallback for retry decorator
+    def retry(*args, **kwargs):
+        def decorator(func):
+            def wrapper(*func_args, **func_kwargs):
+                return func(*func_args, **func_kwargs)
+            return wrapper
+        # Handle both @retry and @retry(...) formats
+        if len(args) == 1 and callable(args[0]):
+            return decorator(args[0])
+        return decorator
+
+# Make fuzzywuzzy optional
+try:
+    from fuzzywuzzy import fuzz
+    FUZZYWUZZY_AVAILABLE = True
+except ImportError:
+    FUZZYWUZZY_AVAILABLE = False
+    # Create a fallback for fuzz
+    class FuzzFallback:
+        @staticmethod
+        def token_set_ratio(a, b):
+            # Simple string equality check as fallback
+            return 100 if a.lower() == b.lower() else 0
+    fuzz = FuzzFallback()
+
+# Make geopy optional
+try:
+    from geopy.distance import geodesic
+    GEOPY_AVAILABLE = True
+except ImportError:
+    GEOPY_AVAILABLE = False
+    # Create a fallback for geodesic
+    def geodesic(point1, point2):
+        class Distance:
+            def __init__(self):
+                self.kilometers = 0
+        return Distance()
+
+# Make spacy optional
+try:
+    import spacy
+    SPACY_AVAILABLE = True
+except ImportError:
+    SPACY_AVAILABLE = False
+    # Create a fallback for spacy
+    class SpacyFallback:
+        class Document:
+            def __init__(self, text):
+                self.text = text
+                self.ents = []
+                self.sents = [self]
+        
+        def load(self, model_name):
+            return self
+            
+        def __call__(self, text):
+            return self.Document(text)
+    
+    spacy = SpacyFallback()
+
+# Make sklearn optional
+try:
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    SKLEARN_AVAILABLE = True
+except ImportError:
+    SKLEARN_AVAILABLE = False
+    # Create fallbacks for sklearn classes
+    class RandomForestClassifierFallback:
+        def __init__(self, **kwargs):
+            pass
+            
+        def predict_proba(self, X):
+            import numpy as np
+            # Always return 0.5 probability (neutral)
+            return np.array([[0.5, 0.5]] * len(X))
+    
+    class TfidfVectorizerFallback:
+        def __init__(self, **kwargs):
+            pass
+            
+        def transform(self, texts):
+            import numpy as np
+            # Return an empty sparse matrix placeholder
+            class SparseMatrix:
+                def __init__(self, shape=(1, 1)):
+                    self.shape = shape
+            return SparseMatrix()
+            
+    RandomForestClassifier = RandomForestClassifierFallback
+    TfidfVectorizer = TfidfVectorizerFallback
+
+# Make joblib optional
+try:
+    import joblib
+    JOBLIB_AVAILABLE = True
+except ImportError:
+    JOBLIB_AVAILABLE = False
+    # Create a fallback for joblib functionality
+    class JobLibFallback:
+        @staticmethod
+        def load(file_path):
+            logger.warning(f"Joblib not available. Cannot load model from {file_path}")
+            return None
+            
+        @staticmethod
+        def dump(obj, file_path, compress=3):
+            logger.warning(f"Joblib not available. Cannot save model to {file_path}")
+            return None
+    
+    joblib = JobLibFallback()
 
 # Make streamlit optional
 try:
@@ -46,10 +157,14 @@ ssl_context = ssl.create_default_context()
 ssl_context.set_ciphers('HIGH:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK')
 
 # Try to load NLP model if available, otherwise provide graceful fallback
-try:
-    nlp = spacy.load("en_core_web_sm")
-except OSError:
-    logger.warning("Spacy language model not found. NLP features will be limited.")
+if SPACY_AVAILABLE:
+    try:
+        nlp = spacy.load("en_core_web_sm")
+    except OSError:
+        logger.warning("Spacy language model not found. NLP features will be limited.")
+        nlp = None
+else:
+    logger.warning("Spacy not installed. NLP features will be unavailable.")
     nlp = None
 
 # Data classes for structured trial information
@@ -255,9 +370,13 @@ class ClinicalTrialMatcher:
         model_path = os.path.join(os.path.dirname(__file__), 'data', 'trial_matching_model.joblib')
         if os.path.exists(model_path):
             try:
-                self.model = joblib.load(model_path)
-                self.tfidf_vectorizer = joblib.load(os.path.join(os.path.dirname(__file__), 'data', 'tfidf_vectorizer.joblib'))
-                logger.info("Loaded machine learning scoring model")
+                if JOBLIB_AVAILABLE:
+                    self.model = joblib.load(model_path)
+                    self.tfidf_vectorizer = joblib.load(os.path.join(os.path.dirname(__file__), 'data', 'tfidf_vectorizer.joblib'))
+                    logger.info("Loaded machine learning scoring model")
+                else:
+                    logger.warning("Joblib not available. Cannot load ML model. Creating new model.")
+                    self._create_new_model()
             except (OSError, ValueError) as e:
                 logger.warning(f"Error loading ML model: {e}. Creating new model.")
                 self._create_new_model()
@@ -266,9 +385,14 @@ class ClinicalTrialMatcher:
     
     def _create_new_model(self):
         """Create a new ML model for trial scoring if none exists."""
-        self.model = RandomForestClassifier(n_estimators=100, random_state=42)
-        self.tfidf_vectorizer = TfidfVectorizer(max_features=5000)
-        logger.info("Created new machine learning scoring model")
+        if SKLEARN_AVAILABLE:
+            self.model = RandomForestClassifier(n_estimators=100, random_state=42)
+            self.tfidf_vectorizer = TfidfVectorizer(max_features=5000)
+            logger.info("Created new machine learning scoring model")
+        else:
+            self.model = RandomForestClassifier()
+            self.tfidf_vectorizer = TfidfVectorizer()
+            logger.warning("Sklearn not available. Using dummy ML model instead.")
         
     def find_matching_trials(self, patient_profile: Dict[str, Any]) -> List[ClinicalTrial]:
         """
@@ -695,10 +819,13 @@ class ClinicalTrialMatcher:
             items = [item.strip() for item in text.split('\n') if item.strip()]
             
         # If we still have just one item, try splitting by sentences
-        if len(items) <= 1 and nlp:
+        # If we still have just one item, try splitting by sentences
+        if len(items) <= 1 and nlp and SPACY_AVAILABLE:
             doc = nlp(text)
             items = [sent.text.strip() for sent in doc.sents if sent.text.strip()]
-            
+        elif len(items) <= 1 and not SPACY_AVAILABLE:
+            # Simple fallback when spaCy is not available - split by periods
+            items = [item.strip() for item in text.replace('\n', ' ').split('.') if item.strip()]
         # Remove empty items and clean up
         items = [item.strip() for item in items if item.strip()]
         
@@ -781,11 +908,24 @@ class ClinicalTrialMatcher:
         # 1. Condition/diagnosis matching (30% of total score)
         if 'diagnosis' in patient_profile and patient_profile['diagnosis'] and trial.conditions:
             # Use fuzzy matching to find best match between patient diagnosis and trial conditions
-            max_condition_match = max(
-                fuzz.token_set_ratio(d, c) 
-                for d in patient_profile['diagnosis'] 
-                for c in trial.conditions
-            ) / 100.0
+            if FUZZYWUZZY_AVAILABLE:
+                max_condition_match = max(
+                    fuzz.token_set_ratio(d, c) 
+                    for d in patient_profile['diagnosis'] 
+                    for c in trial.conditions
+                ) / 100.0
+            else:
+                # Basic matching fallback when fuzzywuzzy is not available
+                matches = []
+                for d in patient_profile['diagnosis']:
+                    for c in trial.conditions:
+                        if d.lower() in c.lower() or c.lower() in d.lower():
+                            matches.append(0.8)  # 80% match for substring
+                        elif d.lower() == c.lower():
+                            matches.append(1.0)  # 100% match for exact match
+                        else:
+                            matches.append(0.0)  # No match
+                max_condition_match = max(matches) if matches else 0.0
             condition_score = max_condition_match * 0.3
         
         # 2. Biomarker matching (25% of total score)
@@ -805,7 +945,11 @@ class ClinicalTrialMatcher:
             if remaining_patient and remaining_trial:
                 for p_bio in remaining_patient:
                     for t_bio in remaining_trial:
-                        if fuzz.token_set_ratio(p_bio, t_bio) > 80:  # 80% similarity threshold
+                        if FUZZYWUZZY_AVAILABLE and fuzz.token_set_ratio(p_bio, t_bio) > 80:  # 80% similarity threshold
+                            fuzzy_matches += 1
+                            break
+                        # Basic fallback when fuzzywuzzy is not available
+                        elif not FUZZYWUZZY_AVAILABLE and (p_bio.lower() in t_bio.lower() or t_bio.lower() in p_bio.lower()):
                             fuzzy_matches += 1
                             break
             
@@ -819,13 +963,18 @@ class ClinicalTrialMatcher:
             # Find minimum distance between patient and any trial location
             min_distance_km = float('inf')
             patient_lat, patient_lon = patient_profile['location']
-            
             for location in trial.locations:
                 if location.lat is not None and location.lon is not None:
-                    distance = geodesic(
-                        (patient_lat, patient_lon), 
-                        (location.lat, location.lon)
-                    ).kilometers
+                    if GEOPY_AVAILABLE:
+                        distance = geodesic(
+                            (patient_lat, patient_lon), 
+                            (location.lat, location.lon)
+                        ).kilometers
+                    else:
+                        # Simple distance fallback when geopy is not available
+                        # Just check if they're in the same country/state
+                        distance = 0 if location.country == patient_profile.get('country', '') else 500
+                    min_distance_km = min(min_distance_km, distance)
                     min_distance_km = min(min_distance_km, distance)
             
             # Calculate location score (inverse of distance, max at 500km)
@@ -897,15 +1046,19 @@ class ClinicalTrialMatcher:
         total_score = condition_score + biomarker_score + location_score + demographics_score + phase_score
         
         # Apply machine learning model if available and all required features are present
+        # Apply machine learning model if available and all required features are present
         if hasattr(self, 'model') and hasattr(self, 'tfidf_vectorizer'):
             try:
-                ml_score = self._calculate_ml_score(trial, patient_profile)
-                
-                # Weighted average of rule-based and ML-based scores
-                total_score = 0.7 * total_score + 0.3 * ml_score
+                if SKLEARN_AVAILABLE:
+                    ml_score = self._calculate_ml_score(trial, patient_profile)
+                    
+                    # Weighted average of rule-based and ML-based scores
+                    total_score = 0.7 * total_score + 0.3 * ml_score
+                else:
+                    # If sklearn isn't available, just use the rule-based score
+                    logger.debug("Sklearn not available. Using rule-based score only.")
             except Exception as e:
                 logger.warning(f"Error calculating ML score: {e}. Using rule-based score only.")
-        
         # Update the trial's score and return
         trial.score = round(total_score, 2)
         return trial
@@ -1249,6 +1402,29 @@ class ClinicalTrialMatcher:
         except requests.RequestException as e:
             logger.error(f"Error requesting FHIR resources {resource_type}: {e}")
             return []
+
+def generate_mock_trials(cancer_type=None, phase=None, location=None, intervention_type=None, min_participants=0):
+    """
+    Generate mock clinical trial data with optional filtering parameters.
+    
+    Parameters:
+    -----------
+    cancer_type : str, optional
+        Filter trials by cancer type
+    phase : int or str, optional
+        Filter trials by phase (1, 2, 3, 4, 'early', or 'late')
+    location : str, optional
+        Filter trials by location
+    intervention_type : str, optional
+        Filter trials by intervention type
+    min_participants : int, optional
+        Minimum number of participants (default: 0)
+    
+    Returns:
+    --------
+    pandas.DataFrame
+        DataFrame containing mock clinical trial data
+    """
     # Define possible values for each field
     cancer_types = ['Lung Cancer', 'Breast Cancer', 'Leukemia', 'Prostate Cancer', 
                    'Colorectal Cancer', 'Melanoma', 'Lymphoma', 'Pancreatic Cancer',
@@ -1358,6 +1534,8 @@ class ClinicalTrialMatcher:
         'Participants': participant_counts
     })
     
+    return df
+
 
 def generate_summary_statistics(trials_df):
     """Generate summary statistics for clinical trials."""
@@ -1442,6 +1620,9 @@ def generate_efficacy_data(trials_df):
     )
     
     return efficacy_df
+
+# Add an alias for generate_mock_trials function
+generate_trial_data = generate_mock_trials
 
 def generate_timeline_data(trials_df):
     """Generate timeline data for visualizing trial durations and milestones."""
