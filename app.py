@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from modules.digital_twins import generate_digital_twin
-  from modules.mutation_analysis import analyze_mutations
+from modules.mutation_analysis import analyze_mutations
 except ImportError as e:
     st.error(f"Module import error: {str(e)}")
     st.stop()
