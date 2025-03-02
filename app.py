@@ -1,75 +1,113 @@
 import streamlit as st
+import requests
 import pandas as pd
-from modules.digital_twins import generate_digital_twin
-from modules.mutation_analysis import analyze_mutations
-from modules.crispr_ai import crispr_feasibility
-from modules.nanoparticle_simulation import simulate_delivery
-from modules.clinical_trials import find_trials
-from modules.blockchain import log_pharmacovigilance
-from modules.beaker_report import fetch_beaker_data
-import plotly.express as px
+import os
+from openai import OpenAI
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+from genomics_analysis import perform_genomic_analysis  # Hypothetical genomic analysis module
 
-st.set_page_config(page_title="AGILE Oncology AI Hub", layout="wide", page_icon="🩺")
+# Load environment variables
+load_dotenv()
 
+# Constants
+FHIR_BASE_URL = "https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4/"
+OAUTH_URL = "https://fhir.epic.com/interconnect-fhir-oauth/oauth2/token"
+GENOMIC_API_URL = "https://genomic-api-url.com/analyze"
+
+# Load OpenAI API Key from .env
+openai_api_key = os.getenv("OPENAI_API_KEY", "")
+
+# Setup session for retries
+session = requests.Session()
+retry = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+adapter = HTTPAdapter(max_retries=retry)
+session.mount('https://', adapter)
+
+# Sidebar Configuration for Advanced Genomic Analysis
 with st.sidebar:
-    st.image("assets/logo.png", width=200)
-    menu = st.radio("AGILE Oncology Modules", [
-        "📊 Clinical Dashboard",
-        "🧬 Digital Twin Simulation",
-        "⚗️ CRISPR Feasibility",
-        "💊 Nanoparticle Delivery",
-        "🔗 Blockchain Monitoring",
-        "📈 Market Analytics"
-    ])
-    st.markdown("---")
-    st.caption(f"v2.3 | NIH-Compliant AI Platform")
+    st.header("🧬 Advanced Genomic Analysis")
 
-if 'patient_data' not in st.session_state:
-    st.session_state.patient_data = None
+    # Navigation menu
+    st.subheader("📌 Genomic Analysis Options")
+    menu_options = [
+        "Upload Genomic Data",
+        "Review Mutations",
+        "Treatment Predictions",
+        "Clinical Trials Matching"
+    ]
+    selected_option = st.radio("Select an analysis module:", menu_options)
 
-if menu == "📊 Clinical Dashboard":
-    st.title("🎛️ AGILE Oncology Clinical Dashboard")
-    with st.expander("⚡ Epic EHR Integration", expanded=True):
-        col1, col2 = st.columns([2,1])
-        with col1:
-            patient_id = st.text_input("Enter Patient ID:", key="patient_id")
-            if st.button("🚀 Fetch Genomic Data"):
-                with st.spinner("Authenticating with Epic FHIR..."):
-                    st.session_state.patient_data = fetch_beaker_data(patient_id)
-        with col2:
-            if st.session_state.patient_data:
-                st.success("✅ NIH-Genomic Data Loaded")
-                st.metric("Tumor Mutational Burden", "42.7/Mb", "+15.2% vs baseline")
-    if st.session_state.patient_data:
-        st.subheader("🧬 Real-Time Mutation Tracking")
-        mutations = analyze_mutations(st.session_state.patient_data)
-        tab1, tab2, tab3 = st.tabs(["Oncogenic Drivers", "Resistance Profile", "Clinical Action"])
-        with tab1:
-            df = pd.DataFrame(mutations['drivers'])
-            st.dataframe(df.style.highlight_max(axis=0), use_container_width=True)
-        with tab2:
-            fig = px.bar(mutations['resistance'], x='gene', y='score', color='therapy', height=400)
-            st.plotly_chart(fig, use_container_width=True)
-        with tab3:
-            st.write("### 🎯 AI-Powered Treatment Suggestions")
-            for therapy in mutations['therapies']:
-                st.progress(therapy['efficacy'], f"{therapy['name']} | {therapy['mechanism']}")
+    # OpenAI API Key input (preloaded from .env but allows manual override)
+    st.subheader("🔑 OpenAI API Key")
+    openai_api_key = st.text_input("Enter your OpenAI API Key", value=openai_api_key, type="password")
 
-elif menu == "🧬 Digital Twin Simulation":
-    st.title("🦾 AI-Driven Digital Twin Modeling")
-    col1, col2 = st.columns([1,2])
-    with col1:
-        st.subheader("Patient Parameters")
-        therapy_options = st.multiselect("Select Therapies:", 
-            ["Pembrolizumab", "Olaparib", "Carfilzomib", "Sacituzumab"])
-        simulation_days = st.slider("Simulation Duration (Days)", 30, 365, 90)
-    with col2:
-        if st.button("🌀 Run Digital Twin Simulation"):
-            with st.spinner("Simulating tumor microenvironment..."):
-                results = generate_digital_twin(
-                    st.session_state.patient_data,
-                    therapies=therapy_options,
-                    days=simulation_days
-                )
-                fig = px.line(results, x='day', y='tumor_volume', color='therapy', markers=True, title="Tumor Evolution Prediction")
-                st.plotly_chart(fig, use_container_width=True)
+    # Quick Links for Genomic Databases
+    st.subheader("🔗 Genomic Databases")
+    st.markdown("[COSMIC Database](https://cancer.sanger.ac.uk/cosmic)")
+    st.markdown("[ClinVar Database](https://www.ncbi.nlm.nih.gov/clinvar/)")
+
+# Display selected module
+st.title(f"🚀 {selected_option}")
+st.caption("AI-driven genomic analysis for precision medicine.")
+
+# Perform Genomic Data Upload & Analysis
+def perform_genomic_data_analysis(genomic_data):
+    try:
+        response = session.post(GENOMIC_API_URL, json={"genomic_data": genomic_data})
+        response.raise_for_status()
+        return response.json()  # Returning mutation analysis results
+    except requests.exceptions.RequestException as e:
+        st.error(f"Genomic analysis failed: {e}")
+        return None
+
+# Auto-Enhanced Genomic Insights
+def generate_genomic_insights(mutated_genes):
+    client = OpenAI(api_key=openai_api_key)
+    prompt = f"Analyze the following mutated genes and suggest possible oncogenic implications and treatments:\n{mutated_genes}"
+    response = client.completions.create(model="gpt-4-turbo", prompt=prompt, max_tokens=500)
+    return response.choices[0].text.strip()
+
+# Display & Navigate Through Genomic Results
+st.subheader("🧬 Upload and Analyze Genomic Data")
+genomic_data = st.file_uploader("Upload your genomic sequencing file (e.g., VCF, JSON)", type=["vcf", "json"])
+if genomic_data:
+    # Perform genomic data analysis (using a hypothetical function or API)
+    genomic_analysis_results = perform_genomic_data_analysis(genomic_data)
+    if genomic_analysis_results:
+        st.write("### Genomic Mutation Results")
+        st.json(genomic_analysis_results)  # Show results as JSON
+        mutated_genes = genomic_analysis_results.get("mutated_genes", [])
+        
+        st.write("### 🤖 AI-Powered Genomic Insights")
+        ai_response = generate_genomic_insights(mutated_genes)
+        if ai_response:
+            st.write(ai_response)
+
+        # Recursively provide context-aware options
+        st.subheader("🔍 Next Steps")
+        options = [
+            "[A] → Refine Mutation Analysis",
+            "[B] → Suggest Treatment Options",
+            "[C] → Search Clinical Trials for Mutation",
+            "[D] → Visualize Genomic Data"
+        ]
+        selected_action = st.radio("What would you like to do next?", options)
+        
+        if selected_action == "[A] → Refine Mutation Analysis":
+            st.write("Refining mutation analysis using additional databases.")
+            # Integrate enhanced genomic analysis, like cross-referencing with ClinVar, COSMIC, etc.
+        
+        elif selected_action == "[B] → Suggest Treatment Options":
+            st.write("Generating personalized treatment options based on mutations.")
+            # Implement treatment suggestions based on genomic analysis
+        
+        elif selected_action == "[C] → Search Clinical Trials for Mutation":
+            st.write("Searching clinical trials matching your mutation.")
+            # Integrate with trial APIs to find relevant trials
+        
+        elif selected_action == "[D] → Visualize Genomic Data":
+            st.write("Visualizing genomic data with charts and graphs.")
+            # Use matplotlib/plotly to show data visually
+
+st.caption("🔗 Powered by Agile Defense Systems | Norton Oncology | AI-Driven Precision Medicine | Epic EHR Integration")
