@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 import os
 from modules.mutation_analysis import analyze_mutations, analyze_mutations_for_visualization, visualize_mutation_data
+from modules.beaker_report import fetch_beaker_data
 
 # Must be the first Streamlit command in the script
 st.set_page_config(page_title="AGILE Oncology AI Hub", layout="wide", page_icon="🩺")
@@ -15,7 +16,6 @@ try:
     from modules.nanoparticle_simulation import simulate_delivery
     from modules.clinical_trials import find_trials
     from modules.blockchain import log_pharmacovigilance
-    from modules.beaker_report import fetch_beaker_data
 except Exception as e:
     st.error(f"Error importing module: {e}")
     st.warning("Some functionality may be limited due to missing modules.")
