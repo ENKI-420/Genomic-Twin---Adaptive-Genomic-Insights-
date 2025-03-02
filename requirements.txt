@@ -7,4 +7,5 @@ plotly
 matplotlib
 seaborn
 lifelines
+openai
 

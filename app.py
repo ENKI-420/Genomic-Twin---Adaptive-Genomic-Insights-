@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import os
+from openai import OpenAI
 from modules.mutation_analysis import analyze_mutations, analyze_mutations_for_visualization, visualize_mutation_data
 from modules.beaker_report import fetch_beaker_data
 from modules.visualization import plot_gene_expression, plot_mutation_heatmap, plot_survival_curve
