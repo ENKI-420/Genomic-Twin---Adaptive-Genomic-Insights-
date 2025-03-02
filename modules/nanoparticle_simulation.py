@@ -85,16 +85,16 @@ class NanoparticleDeliverySimulator:
 # Example usage
 if __name__ == "__main__":
     params = {
-        'dose': 100,
-        'elimination_rate': 0.15,
+        'dose': 100,  # mg/kg
+        'elimination_rate': 0.15,  # 1/hours
         'distribution': {'Liver': 50, 'Kidney': 30, 'Lung': 20},
-        'size': 80,
-        'charge': -15
+        'size': 80,  # Nanoparticle size in nm
+        'charge': -15  # Surface charge in mV
     }
     
     simulator = NanoparticleDeliverySimulator(**params)
-    pk_results = simulator.simulate_pk()
-    dist_results = simulator.simulate_distribution()
+    pk_results = simulator.simulate_pk()  # Simulate PK profile for 24 hours
+    dist_results = simulator.simulate_distribution()  # Simulate organ distribution
     
     print("Pharmacokinetic Data:")
     print(pk_results.head())
@@ -102,4 +102,4 @@ if __name__ == "__main__":
     print("\nOrgan Distribution:")
     print(dist_results)
     
-    simulator.plot_results(pk_results, dist_results)
+    simulator.plot_results(pk_results, dist_results)  # Visualize results
