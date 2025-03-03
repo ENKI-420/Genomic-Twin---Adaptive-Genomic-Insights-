@@ -241,8 +241,8 @@ def generate_genomic_insights(mutated_genes):
     return response.choices[0].text.strip()
 
         # Recursively provide context-aware options
-        st.subheader("🔍 Next Steps")
-        options = [
+            st.subheader("🔍 Next Steps")
+            options = [
             "[A] → Refine Mutation Analysis",
             "[B] → Suggest Treatment Options",
             "[C] → Search Clinical Trials for Mutation",
