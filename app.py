@@ -5,7 +5,8 @@ import os
 from openai import OpenAI
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-from .genomics_analysis import perform_genomic_analysis
+from modules.genomics_analysis import perform_genomic_analysis
+
 
 
 # Load environment variables
