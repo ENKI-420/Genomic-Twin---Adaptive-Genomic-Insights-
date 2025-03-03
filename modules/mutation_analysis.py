@@ -1,6 +1,11 @@
 import numpy as np
 import pandas as pd
-mport matplotlib.pyplot as plt  # Now included in requirements
+import matplotlib.pyplot as plt  # Now included in requirements
+from typing import Tuple, Dict
+from Bio.SeqUtils import ProtParam
+from sklearn.neural_network import MLPRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
 
 def analyze_mutations(patient_data):
     """Enhanced mutation analysis with visualization"""
@@ -10,11 +15,6 @@ def analyze_mutations(patient_data):
         'resistance': {...},
         'therapies': [...]
     }
-from typing import Tuple, Dict
-from Bio.SeqUtils import ProtParam
-from sklearn.neural_network import MLPRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
 
 class NanoparticleSimulator:
     def __init__(self, dose: float, elimination_rate: float, efficacy: float):
