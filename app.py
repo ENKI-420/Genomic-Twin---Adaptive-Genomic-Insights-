@@ -7,8 +7,6 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from modules.genomics_analysis import perform_genomic_analysis
 
-
-
 # Load environment variables
 load_dotenv()
 
