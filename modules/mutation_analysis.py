@@ -1,175 +1,157 @@
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt  # Now included in requirements
-from typing import Tuple, Dict
-from Bio.SeqUtils import ProtParam
-from sklearn.neural_network import MLPRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
+import streamlit as st
+import requests
+import os
+from openai import OpenAI
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+from dotenv import load_dotenv
 
-def analyze_mutations(patient_data):
-    """Enhanced mutation analysis with visualization"""
-    # Assume patient_data is a DataFrame with mutation information
-    drivers = patient_data[patient_data['type'] == 'driver']
-    resistance = patient_data[patient_data['type'] == 'resistance']
-    therapies = patient_data[patient_data['type'] == 'therapy']
+# Load environment variables
+load_dotenv()
 
-    # Visualization (example)
-    plt.figure(figsize=(10, 6))
-    plt.hist(drivers['mutation_frequency'], bins=20, alpha=0.5, label='Drivers')
-    plt.hist(resistance['mutation_frequency'], bins=20, alpha=0.5, label='Resistance')
-    plt.hist(therapies['mutation_frequency'], bins=20, alpha=0.5, label='Therapies')
-    plt.legend(loc='upper right')
-    plt.title('Mutation Frequency Distribution')
-    plt.xlabel('Frequency')
-    plt.ylabel('Count')
-    plt.show()
+# Constants
+GENOMIC_API_URL = "https://genomic-api-url.com/analyze"
+CLINVAR_API_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+COSMIC_API_URL = "https://cancer.sanger.ac.uk/cosmic/api/v1"
 
-    return {
-        'drivers': drivers,
-        'resistance': resistance.to_dict(),
-        'therapies': therapies['therapy_name'].tolist()
-    }
+# Load API keys from .env
+openai_api_key = os.getenv("OPENAI_API_KEY", "")
+cosmic_api_key = os.getenv("COSMIC_API_KEY", "")
 
-class NanoparticleSimulator:
-    def __init__(self, dose: float, elimination_rate: float, efficacy: float):
-        """
-        Initialize nanoparticle simulation parameters
-        """
-        self.dose = dose
-        self.elimination_rate = elimination_rate
-        self.efficacy = efficacy
-        self.time_points = np.arange(0, 24)  # 24-hour simulation
-        
-    def run_pk_simulation(self) -> np.ndarray:
-        """Pharmacokinetic simulation using iterative approach"""
-        concentrations = np.zeros_like(self.time_points, dtype=float)
-        concentrations[0] = self.dose  # Initial dose
-        
-        for i in range(1, len(self.time_points)):
-            concentrations[i] = concentrations[i-1] * np.exp(-self.elimination_rate)
-            
-        return concentrations
+# Setup session for retries
+session = requests.Session()
+retry = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+adapter = HTTPAdapter(max_retries=retry)
+session.mount('https://', adapter)
+
+# Sidebar Configuration
+with st.sidebar:
+    st.header("🧬 Advanced Genomic Analysis")
+    menu_options = [
+        "Upload Genomic Data",
+        "Review Mutations",
+        "Treatment Predictions",
+        "Clinical Trials Matching"
+    ]
+    selected_option = st.radio("Select an analysis module:", menu_options)
+    st.subheader("🔑 API Keys")
+    openai_api_key = st.text_input("OpenAI API Key", value=openai_api_key, type="password")
+    cosmic_api_key = st.text_input("COSMIC API Key", value=cosmic_api_key, type="password")
+
+# Main Interface
+st.title(f"🚀 {selected_option}")
+st.caption("AI-driven genomic analysis for precision medicine.")
+
+# Genomic Analysis Functions
+def perform_genomic_data_analysis(genomic_data):
+    try:
+        # Initial genomic analysis
+        response = session.post(
+            GENOMIC_API_URL,
+            json={"genomic_data": genomic_data.getvalue()},
+            timeout=30
+        )
+        response.raise_for_status()
+        analysis_results = response.json()
+
+        # Database cross-referencing
+        analysis_results["clinvar"] = cross_reference_clinvar(analysis_results)
+        analysis_results["cosmic"] = cross_reference_cosmic(analysis_results)
+
+        return analysis_results
+    except Exception as e:
+        st.error(f"Analysis failed: {str(e)}")
+        return None
+
+def cross_reference_clinvar(analysis_results):
+    clinvar_data = {}
+    try:
+        for gene in analysis_results.get("mutated_genes", []):
+            params = {
+                "db": "clinvar",
+                "term": f"{gene}[gene]+AND+human[organism]",
+                "retmode": "json"
+            }
+            response = session.get(CLINVAR_API_URL, params=params, timeout=15)
+            response.raise_for_status()
+            clinvar_data[gene] = response.json().get("esearchresult", {})
+    except Exception as e:
+        st.error(f"ClinVar lookup failed: {str(e)}")
+    return clinvar_data
+
+def cross_reference_cosmic(analysis_results):
+    cosmic_data = {}
+    if not cosmic_api_key:
+        st.error("COSMIC API key required")
+        return cosmic_data
     
-    def run_pd_simulation(self, concentrations: np.ndarray) -> np.ndarray:
-        """Pharmacodynamic simulation with efficacy modeling"""
-        return self.efficacy * concentrations / (1 + concentrations)
+    try:
+        for gene in analysis_results.get("mutated_genes", []):
+            headers = {"Authorization": f"Bearer {cosmic_api_key}"}
+            response = session.get(
+                f"{COSMIC_API_URL}/gene/{gene}",
+                headers=headers,
+                timeout=15
+            )
+            response.raise_for_status()
+            cosmic_data[gene] = response.json()
+    except Exception as e:
+        st.error(f"COSMIC lookup failed: {str(e)}")
+    return cosmic_data
+
+def generate_genomic_insights(mutated_genes):
+    client = OpenAI(api_key=openai_api_key)
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4-turbo",
+            messages=[{
+                "role": "user",
+                "content": f"Analyze these mutated genes and suggest oncogenic implications and treatments based on ClinVar/COSMIC data:\n{mutated_genes}"
+            }],
+            max_tokens=500
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        return f"Insight generation failed: {str(e)}"
+
+# Main Application Flow
+st.subheader("🧬 Upload and Analyze Genomic Data")
+uploaded_file = st.file_uploader("Upload genomic file (VCF, JSON)", type=["vcf", "json"])
+
+if uploaded_file:
+    analysis_results = perform_genomic_data_analysis(uploaded_file)
     
-    def visualize_results(self, concentrations: np.ndarray, effects: np.ndarray):
-        """Visualize simulation results"""
-        fig, ax1 = plt.subplots()
+    if analysis_results:
+        st.subheader("Analysis Results")
+        with st.expander("Raw Data"):
+            st.json(analysis_results)
 
-        ax1.set_xlabel('Time (hours)')
-        ax1.set_ylabel('Concentration (mg/L)', color='tab:blue')
-        ax1.plot(self.time_points, concentrations, 'b-')
-        ax1.tick_params(axis='y', labelcolor='tab:blue')
+        mutated_genes = analysis_results.get("mutated_genes", [])
+        if mutated_genes:
+            st.subheader("AI-Generated Insights")
+            insights = generate_genomic_insights(mutated_genes)
+            st.write(insights)
 
-        ax2 = ax1.twinx()
-        ax2.set_ylabel('Therapeutic Effect', color='tab:red')
-        ax2.plot(self.time_points, effects, 'r--')
-        ax2.tick_params(axis='y', labelcolor='tab:red')
+            st.subheader("🔍 Next Steps")
+            action = st.radio("Choose action:", [
+                "Refine Mutation Analysis",
+                "View Treatment Options",
+                "Find Clinical Trials",
+                "Visualize Genomic Data"
+            ])
 
-        plt.title('PK/PD Simulation Results')
-        plt.show()
+            if action == "View Treatment Options":
+                treatments = analysis_results.get("clinvar", {}).get("treatment_recommendations", [])
+                st.write("### Targeted Treatment Options")
+                st.table(pd.DataFrame(treatments))
 
-class MutationAnalyzer:
-    @staticmethod
-    def analyze_vcf(vcf_path: str) -> Tuple[pd.DataFrame, Dict]:
-        """
-        Analyze genomic mutations from VCF file
-        Returns tuple of (DataFrame, impact_dict)
-        """
-        # Implementation from previous version
-        return mutations, impact
-    
-    @staticmethod
-    def predict_protein_impact(sequence: str) -> Dict:
-        """Advanced protein stability prediction"""
-        analyzer = ProtParam.ProteinAnalysis(sequence)
-        return {
-            'molecular_weight': analyzer.molecular_weight(),
-            'isoelectric_point': analyzer.isoelectric_point(),
-            'instability_index': analyzer.instability_index(),
-            'flexibility': np.mean(analyzer.flexibility())
-        }
+        st.subheader("Database Cross-References")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write("**ClinVar Data**")
+            st.write(analysis_results.get("clinvar", {}))
+        with col2:
+            st.write("**COSMIC Data**")
+            st.write(analysis_results.get("cosmic", {}))
 
-class MLPredictor:
-    def __init__(self, hidden_layers: Tuple = (10, 10)):
-        self.model = MLPRegressor(hidden_layer_sizes=hidden_layers, max_iter=2000)
-        
-    def train_model(self, X: np.ndarray, y: np.ndarray):
-        """Train neural network with validation split"""
-        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
-        self.model.fit(X_train, y_train)
-        
-        # Validate model
-        val_pred = self.model.predict(X_val)
-        mse = mean_squared_error(y_val, val_pred)
-        print(f"Validation MSE: {mse:.4f}")
-        
-    def predict(self, X: np.ndarray) -> np.ndarray:
-        return self.model.predict(X)
-
-# Example usage
-if __name__ == "__main__":
-    # Run nanoparticle simulation
-    simulator = NanoparticleSimulator(dose=100, elimination_rate=0.1, efficacy=0.8)
-    concentrations = simulator.run_pk_simulation()
-    effects = simulator.run_pd_simulation(concentrations)
-    simulator.visualize_results(concentrations, effects)
-    
-    # Mutation analysis example
-    mutations, impact = MutationAnalyzer.analyze_vcf("sample.vcf")
-    print("Mutation Impact Analysis:", impact)
-    
-    # Machine learning integration
-    ml_model = MLPredictor(hidden_layers=(20, 10))
-    X = concentrations.reshape(-1, 1)
-    y = effects
-    ml_model.train_model(X, y)
-    
-    # Predict future effects
-    future_times = np.arange(24, 48).reshape(-1, 1)
-    predicted_effects = ml_model.predict(future_times)
-    
-    plt.plot(future_times, predicted_effects, 'g--', label='Predicted Effects')
-    plt.legend()
-    plt.show()
-
-class MutationAnalyzer:
-    @staticmethod
-    def analyze_vcf(vcf_path: str) -> Tuple[pd.DataFrame, Dict]:
-        """
-        Analyze genomic mutations from VCF file
-        Returns tuple of (DataFrame, impact_dict)
-        """
-        # Implementation from previous version
-        return mutations, impact
-    
-    @staticmethod
-    def predict_protein_impact(sequence: str) -> Dict:
-        """Advanced protein stability prediction"""
-        analyzer = ProtParam.ProteinAnalysis(sequence)
-        return {
-            'molecular_weight': analyzer.molecular_weight(),
-            'isoelectric_point': analyzer.isoelectric_point(),
-            'instability_index': analyzer.instability_index(),
-            'flexibility': np.mean(analyzer.flexibility())
-        }
-class MLPredictor:
-    def __init__(self, hidden_layers: Tuple = (10, 10)):
-        self.model = MLPRegressor(hidden_layer_sizes=hidden_layers, max_iter=2000)
-        
-    def train_model(self, X: np.ndarray, y: np.ndarray):
-        """Train neural network with validation split"""
-        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
-        self.model.fit(X_train, y_train)
-        
-        # Validate model
-        val_pred = self.model.predict(X_val)
-        mse = mean_squared_error(y_val, val_pred)
-        print(f"Validation MSE: {mse:.4f}")
-        
-    def predict(self, X: np.ndarray) -> np.ndarray:
-        return self.model.predict(X)
-
+st.caption("🔗 Powered by Advanced Genomic Analytics | Real-time Database Integration")
