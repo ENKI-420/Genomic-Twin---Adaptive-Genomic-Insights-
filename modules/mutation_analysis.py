@@ -9,11 +9,26 @@ from sklearn.metrics import mean_squared_error
 
 def analyze_mutations(patient_data):
     """Enhanced mutation analysis with visualization"""
-    # Implementation logic here
+    # Assume patient_data is a DataFrame with mutation information
+    drivers = patient_data[patient_data['type'] == 'driver']
+    resistance = patient_data[patient_data['type'] == 'resistance']
+    therapies = patient_data[patient_data['type'] == 'therapy']
+
+    # Visualization (example)
+    plt.figure(figsize=(10, 6))
+    plt.hist(drivers['mutation_frequency'], bins=20, alpha=0.5, label='Drivers')
+    plt.hist(resistance['mutation_frequency'], bins=20, alpha=0.5, label='Resistance')
+    plt.hist(therapies['mutation_frequency'], bins=20, alpha=0.5, label='Therapies')
+    plt.legend(loc='upper right')
+    plt.title('Mutation Frequency Distribution')
+    plt.xlabel('Frequency')
+    plt.ylabel('Count')
+    plt.show()
+
     return {
-        'drivers': pd.DataFrame(...),
-        'resistance': {...},
-        'therapies': [...]
+        'drivers': drivers,
+        'resistance': resistance.to_dict(),
+        'therapies': therapies['therapy_name'].tolist()
     }
 
 class NanoparticleSimulator:
@@ -120,3 +135,41 @@ if __name__ == "__main__":
     plt.plot(future_times, predicted_effects, 'g--', label='Predicted Effects')
     plt.legend()
     plt.show()
+
+class MutationAnalyzer:
+    @staticmethod
+    def analyze_vcf(vcf_path: str) -> Tuple[pd.DataFrame, Dict]:
+        """
+        Analyze genomic mutations from VCF file
+        Returns tuple of (DataFrame, impact_dict)
+        """
+        # Implementation from previous version
+        return mutations, impact
+    
+    @staticmethod
+    def predict_protein_impact(sequence: str) -> Dict:
+        """Advanced protein stability prediction"""
+        analyzer = ProtParam.ProteinAnalysis(sequence)
+        return {
+            'molecular_weight': analyzer.molecular_weight(),
+            'isoelectric_point': analyzer.isoelectric_point(),
+            'instability_index': analyzer.instability_index(),
+            'flexibility': np.mean(analyzer.flexibility())
+        }
+class MLPredictor:
+    def __init__(self, hidden_layers: Tuple = (10, 10)):
+        self.model = MLPRegressor(hidden_layer_sizes=hidden_layers, max_iter=2000)
+        
+    def train_model(self, X: np.ndarray, y: np.ndarray):
+        """Train neural network with validation split"""
+        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
+        self.model.fit(X_train, y_train)
+        
+        # Validate model
+        val_pred = self.model.predict(X_val)
+        mse = mean_squared_error(y_val, val_pred)
+        print(f"Validation MSE: {mse:.4f}")
+        
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        return self.model.predict(X)
+
