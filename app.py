@@ -1,112 +1,131 @@
+import streamlit as st
 import requests
+import pandas as pd
 import json
 import os
-import fhirclient.models.patient as p
-import fhirclient.models.observation as obs
-import fhirclient.models.condition as cond
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+from dotenv import load_dotenv
+from fhirclient.models.patient import Patient
 from fhirclient import client
-import pandas as pd
+import matplotlib.pyplot as plt
 from fpdf import FPDF
 from docx import Document
+from openai import OpenAI
 
-# Initialize FHIR Client for EPIC Integration with Secure Credentials
-settings = {
-    'app_id': os.getenv('FHIR_APP_ID', 'genomic_ai_integration'),
-    'api_base': os.getenv('FHIR_API_BASE', 'https://epic.fhir.example.com')
-}
-fhir_client = client.FHIRClient(settings=settings)
+# Load environment variables
+load_dotenv()
 
-# Fetch Patient Data from EPIC using FHIR with Error Handling
-def fetch_patient_data(patient_id):
-    try:
-        patient = p.Patient.read(patient_id, fhir_client.server)
-        return patient.as_json()
-    except Exception as e:
-        return {"error": f"Failed to fetch patient data: {str(e)}"}
+# Constants
+GENOMIC_API_URL = os.getenv("GENOMIC_API_URL", "https://genomic-api-url.com/analyze")
+FHIR_BASE_URL = "https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4/"
+OAUTH_URL = "https://fhir.epic.com/interconnect-fhir-oauth/oauth2/token"
+GNOMAD_API_URL = "https://gnomad.broadinstitute.org/api"
+CLINVAR_API_URL = "https://api.ncbi.nlm.nih.gov/clinvar/v1"
+TRIALS_API_URL = "https://api.3oncologyresearchhub.com/v2/studies"
 
-# Merge Genomic Data with EMR Data
-def merge_genomic_with_emr(genomic_data, patient_id):
-    patient_data = fetch_patient_data(patient_id)
-    merged_data = {
-        "patient": patient_data,
-        "genomic": genomic_data
-    }
-    return merged_data
+# Load API keys
+openai_api_key = os.getenv("OPENAI_API_KEY")
 
-# Fetch Variant Annotations from ClinVar, COSMIC, or gnomAD with Error Handling
-def fetch_variant_annotations(variant_id):
-    urls = {
-        "ClinVar": f"https://api.ncbi.nlm.nih.gov/clinvar/v1/variants/{variant_id}",
-        "COSMIC": f"https://cancer.sanger.ac.uk/cosmic/api/variants/{variant_id}",
-        "gnomAD": f"https://gnomad.broadinstitute.org/api/variants/{variant_id}"
-    }
-    
-    annotations = {}
-    for source, url in urls.items():
-        try:
-            response = requests.get(url)
-            response.raise_for_status()
-            annotations[source] = response.json()
-        except requests.exceptions.RequestException as e:
-            annotations[source] = {"error": f"Failed to fetch data from {source}: {str(e)}"}
-    
-    return annotations
+# Initialize FHIR Client
+fhir_settings = {'app_id': os.getenv('FHIR_APP_ID'), 'api_base': FHIR_BASE_URL}
+fhir_client = client.FHIRClient(settings=fhir_settings)
 
-# AI-Based Treatment Recommendations with Drug Dosage & Clinical Trials
-def ai_treatment_recommendations(variant_data, patient_data):
-    treatment_guidelines = {
-        "BRCA1 p.V600E": {"recommendation": "Consider PARP inhibitors for targeted therapy.", "dosage": "Olaparib 300mg BID", "clinical_trial": "NCT03812345"},
-        "TP53 mutation": {"recommendation": "Monitor for increased cancer risk and consider precision therapies.", "dosage": "Varies by mutation subtype", "clinical_trial": "NCT04567890"},
-        "EGFR exon 19 deletion": {"recommendation": "EGFR tyrosine kinase inhibitors recommended.", "dosage": "Osimertinib 80mg QD", "clinical_trial": "NCT01234567"},
-        "ALK rearrangement": {"recommendation": "Consider ALK inhibitors such as Crizotinib.", "dosage": "Crizotinib 250mg BID", "clinical_trial": "NCT09876543"},
-        "BRAF V600E": {"recommendation": "BRAF inhibitors like Dabrafenib + Trametinib recommended.", "dosage": "Dabrafenib 150mg BID + Trametinib 2mg QD", "clinical_trial": "NCT06789012"}
-    }
-    
-    variant = variant_data.get("variant", "Unknown Variant")
-    recommendation_data = treatment_guidelines.get(variant, {"recommendation": "Consult NCCN guidelines for detailed treatment options.", "dosage": "Not available", "clinical_trial": "Not available"})
-    
-    return {
-        "patient_id": patient_data.get("id", "Unknown"),
-        "variant": variant,
-        "recommendation": recommendation_data["recommendation"],
-        "dosage": recommendation_data["dosage"],
-        "clinical_trial": recommendation_data["clinical_trial"]
-    }
+# Session setup with retries
+session = requests.Session()
+retry = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+session.mount('https://', HTTPAdapter(max_retries=retry))
 
-# Generate Custom Reports (PDF, DOCX, JSON) with Enhanced Formatting
-def generate_report(data, format='pdf'):
-    if format == 'pdf':
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Arial", size=12)
-        pdf.cell(200, 10, txt="Genomic AI Report", ln=True, align='C')
-        pdf.multi_cell(0, 10, json.dumps(data, indent=4))
-        pdf.output("genomic_report.pdf")
-    elif format == 'docx':
-        doc = Document()
-        doc.add_heading('Genomic AI Report', level=1)
-        for key, value in data.items():
-            doc.add_heading(key, level=2)
-            doc.add_paragraph(json.dumps(value, indent=4))
-        doc.save("genomic_report.docx")
-    elif format == 'json':
-        with open("genomic_report.json", "w") as f:
-            json.dump(data, f, indent=4)
-    
-    return f"Report saved as genomic_report.{format}"
+# Authenticate with Epic OAuth2
+def epic_authenticate(username, password):
+    data = {'grant_type':'password', 'username':username, 'password':password,
+            'client_id':os.getenv('EPIC_CLIENT_ID'), 'client_secret':os.getenv('EPIC_CLIENT_SECRET')}
+    response = requests.post(OAUTH_URL, data=data)
+    response.raise_for_status()
+    return response.json().get('access_token')
 
-# Example Execution
-if __name__ == "__main__":
-    sample_genomic_data = {"variant": "BRCA1 p.V600E", "impact": "High"}
-    patient_id = "123456"
-    merged_data = merge_genomic_with_emr(sample_genomic_data, patient_id)
-    variant_annotations = fetch_variant_annotations("BRCA1 p.V600E")
-    treatment_recommendations = ai_treatment_recommendations(sample_genomic_data, merged_data["patient"])
-    
-    final_data = {
-        "merged_data": merged_data,
-        "annotations": variant_annotations,
-        "treatment_recommendations": treatment_recommendations
-    }
-    
-    print(generate_report(final_data, format='pdf'))
+# Fetch patient data from EPIC
+def fetch_patient_data(patient_id, auth_token):
+    headers = {"Authorization": f"Bearer {auth_token}"}
+    response = session.get(f"{FHIR_BASE_URL}Patient/{patient_id}", headers=headers)
+    response.raise_for_status()
+    return response.json()
+
+# Fetch Beaker Reports via Epic
+def fetch_beaker_reports(patient_id, auth_token):
+    headers = {"Authorization": f"Bearer {auth_token}"}
+    response = session.get(f"{FHIR_BASE_URL}DiagnosticReport?patient={patient_id}", headers=headers)
+    response.raise_for_status()
+    return response.json()
+
+# Fetch Clinical Trials
+def fetch_clinical_trials(mutations):
+    params = {"query": ",".join(mutations)}
+    response = session.get(TRIALS_API_URL, params=params)
+    response.raise_for_status()
+    return response.json()
+
+# Visualization Helper
+def plot_mutation_data(data):
+    df = pd.DataFrame(data)
+    fig, ax = plt.subplots()
+    df['gene'].value_counts().plot(kind='bar', ax=ax)
+    ax.set_title('Mutation Frequency by Gene')
+    ax.set_xlabel('Gene')
+    ax.set_ylabel('Frequency')
+    st.pyplot(fig)
+
+# Generate PDF and DOCX Reports
+def generate_reports(mutations, patient_data):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, "Agile Oncology Report", ln=True, align='C')
+    pdf.multi_cell(0, 10, json.dumps({"mutations": mutations, "patient_data": patient_data}, indent=4))
+    pdf.output("genomic_report.pdf")
+
+    doc = Document()
+    doc.add_heading('Agile Oncology Report', 0)
+    doc.add_heading('Patient Data', level=1)
+    doc.add_paragraph(json.dumps(patient_data, indent=4))
+    doc.add_heading('Mutations', level=1)
+    doc.add_paragraph(json.dumps(mutations, indent=4))
+    doc.save("genomic_report.docx")
+
+# AI-Powered Clinical Trial Matching
+def ai_clinical_trial_matching(mutations):
+    trials_data = fetch_clinical_trials()
+    matching_trials = [trial for trial in trials_data.get('studies', []) if any(mut in trial['eligibility'] for mut in mutations)]
+    return matching_trials
+
+# Main Streamlit UI
+st.title("🚀 Agile Oncology AI Platform")
+st.caption("Precision Medicine Platform v2.4")
+
+with st.sidebar:
+    st.header("🧬 Options")
+    analysis_mode = st.radio("Select Analysis Mode", ["Genomic Analysis", "Beaker Reports", "Clinical Trial Matching"])
+    username = st.text_input("Epic Username")
+    password = st.text_input("Epic Password", type="password")
+    if st.button("Login to Epic"):
+        st.session_state.token = epic_authenticate(username, password)
+        st.success("Authenticated with Epic")
+
+patient_id = st.text_input("Enter Patient ID") if 'token' in st.session_state else None
+
+if analysis_mode == "Genomic Analysis" and patient_id:
+    file = st.file_uploader("Upload Genomic File (VCF/JSON)")
+    if file and st.button("Analyze"):
+        response = session.post(GENOMIC_API_URL, files={'file': file}).json()
+        st.dataframe(pd.DataFrame(response['mutations']))
+        plot_mutation_data(response['mutations'])
+        patient_data = fetch_patient_data(patient_id, st.session_state.token)
+        generate_reports(response['mutations'], patient_data)
+        st.success("Reports Ready: PDF & DOCX")
+
+elif analysis_mode == "Clinical Trial Matching" and st.button("Match Trials"):
+    mutations = st.text_input("Enter mutations (comma-separated)").split(',')
+    matching_trials = ai_clinical_trial_matching(mutations)
+    st.json(matching_trials)
+
+st.caption("🔬 Agile Oncology AI | Epic EHR | Secure & HIPAA-compliant")
