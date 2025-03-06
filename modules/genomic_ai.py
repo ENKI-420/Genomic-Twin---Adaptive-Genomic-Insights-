@@ -1,72 +1,107 @@
-import streamlit as st
+import requests
+import pandas as pd
+import matplotlib.pyplot as plt
+import json
 import os
 from dotenv import load_dotenv
-from modules.genomic_ai import analyze_genomic_data, plot_mutation_data
-from modules.beaker_report import fetch_beaker_reports
-from modules.clinical_trials import match_clinical_trials
-from modules.export_data import generate_reports
-from modules.utils import authenticate_epic, fetch_patient_data
-from modules.chatbot import ai_chat_response
+from openai import OpenAI
+from fpdf import FPDF
+from docx import Document
+import streamlit as st
 
 # Load environment variables
 load_dotenv()
+openai_api_key = os.getenv("OPENAI_API_KEY")
 
 # Constants
-APP_VERSION = "v3.1"
+GENOMIC_API_URL = os.getenv("GENOMIC_API_URL", "https://genomic-api-url.com/analyze")
+
+# Analyze genomic data
+def analyze_genomic_data(uploaded_file):
+    try:
+        if uploaded_file.name.endswith('.vcf'):
+            df = pd.read_csv(uploaded_file, sep='\t', comment='#')
+        elif uploaded_file.name.endswith('.csv'):
+            df = pd.read_csv(uploaded_file)
+        else:
+            raise ValueError("Unsupported file format.")
+        required_cols = ['Gene', 'Mutation', 'Variant_Classification', 'Allele_Frequency']
+        for col in required_cols:
+            if col not in df.columns:
+                df[col] = "Unknown"
+        return df
+    except Exception as e:
+        raise ValueError(f"Data analysis failed: {str(e)}")
+
+# Visualization Helper
+def plot_mutation_data(mutations_df):
+    if not mutations_df.empty:
+        plt.figure(figsize=(10, 6))
+        mutations_df['Gene'].value_counts().plot(kind='bar', color='skyblue')
+        plt.title('Mutation Frequency by Gene')
+        plt.xlabel('Gene')
+        plt.ylabel('Frequency')
+        plt.tight_layout()
+        st.pyplot(plt)
+    else:
+        st.warning("No mutations data available for plotting.")
+
+# AI Interpretation
+def ai_genomic_interpretation(mutations_df):
+    client = OpenAI(api_key=openai_api_key)
+    genomic_summary = mutations_df.to_dict(orient="records")
+    prompt = f"Interpret the clinical significance and provide actionable insights for these genomic mutations: {genomic_summary}"
+    response = client.chat.completions.create(
+        model="gpt-4-turbo",
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return response.choices[0].message.content
+
+# Generate Reports
+def generate_reports(mutations_df, patient_data, insights, format_type="PDF"):
+    content = json.dumps({"mutations": mutations_df.to_dict(orient='records'), "patient_data": patient_data, "AI Insights": insights}, indent=4)
+
+    if format_type == "PDF":
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+        pdf.cell(200, 10, "Agile Oncology Genomic Report", ln=True, align='C')
+        pdf.multi_cell(0, 10, content)
+        pdf.output("genomic_report.pdf")
+        return "genomic_report.pdf"
+
+    elif format_type == "DOCX":
+        doc = Document()
+        doc.add_heading('Agile Oncology Genomic Report', 0)
+        doc.add_heading('Patient Data', level=1)
+        doc.add_paragraph(json.dumps(patient_data, indent=4))
+        doc.add_heading('Mutation Analysis', level=1)
+        doc.add_paragraph(content)
+        doc_file = "genomic_report.docx"
+        doc.save(doc_file)
+        return doc_file
 
 # Streamlit UI
-st.title("🚀 Agile Oncology AI Platform")
-st.caption("Precision Medicine Platform v2.5")
+st.title("🧬 Agile Oncology Genomic Analysis Module")
 
-# Sidebar UI
-with st.sidebar:
-    st.header("🧬 Agile Oncology AI")
-    analysis_mode = st.radio("Select Analysis Mode", ["Genomic Analysis", "Beaker Reports", "Clinical Trial Matching", "AI Chatbot"])
+uploaded_file = st.file_uploader("📂 Upload Genomic Data (VCF/CSV)", type=['vcf', 'csv'])
+report_format = st.selectbox("📄 Select Report Format", ["PDF", "DOCX"])
 
-    st.subheader("🔑 Epic EHR Authentication")
-    username = st.text_input("Epic Username")
-    password = st.text_input("Epic Password", type="password")
-    if st.button("Login"):
-        token = authenticate_epic(username, password)
-        if token:
-            st.session_state['token'] = token
-            st.success("Authenticated with Epic!")
-        else:
-            st.error("Authentication failed.")
-
-# Main UI logic
-if 'token' in st.session_state:
-    patient_id = st.text_input("Enter Patient ID")
-
-    if analysis_mode == "Genomic Analysis":
-        uploaded_file = st.file_uploader("Upload Genomic File (VCF/JSON)")
-        if uploaded_file and st.button("Analyze Genomics 🚀"):
+if uploaded_file and st.button("Analyze and Generate Report 🚀"):
+    with st.spinner("Analyzing genomic data..."):
+        try:
             mutations_df = analyze_genomic_data(uploaded_file)
-            patient_data = fetch_patient_data(patient_id, st.session_state['token'])
-            st.dataframe(mutations)
-            plot_mutation_data(mutations)
-            generate_reports(mutations, patient_data)
-            st.success("Reports Generated: PDF & DOCX")
+            insights = ai_genomic_interpretation(mutations_df)
+            patient_data = {"Patient ID": "Unknown"}  # Placeholder patient data; replace with real EPIC fetch
 
-    elif analysis_mode == "Beaker Reports":
-        if st.button("Fetch Beaker Reports"):
-            reports = fetch_beaker_reports(patient_id, st.session_state['token'])
-            st.dataframe(reports)
+            st.dataframe(mutations_df)
+            plot_mutation_data(mutations_df)
+            report_file = generate_reports(mutations_df, patient_data, insights, report_format)
 
-    elif analysis_mode == "Clinical Trial Matching":
-        mutations_input = st.text_input("Enter mutations (comma-separated)")
-        if st.button("Find Matching Trials"):
-            mutations = mutations_input.split(',')
-            trials = match_clinical_trials(mutations)
-            st.json(trials)
+            with open(report_file, "rb") as f:
+                st.download_button(label="Download Report", data=f, file_name=report_file)
 
-    elif analysis_mode == "AI Chatbot":
-        user_query = st.text_area("Ask Agile Oncology AI")
-        if st.button("Get AI Response"):
-            response = ai_chat_response(user_query=user_input)
-            st.write(response)
-
-else:
-    st.info("Please authenticate via the sidebar to start using the platform.")
-
-st.caption("🔬 Agile Oncology AI | Powered by EPIC EHR | Secure & HIPAA-compliant")
+            st.success("Report generated successfully!")
+        
+        except Exception as e:
+            st.error(f"An error occurred: {str(e)}")
