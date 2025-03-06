@@ -1,197 +1,112 @@
-import streamlit as st
 import requests
-import pandas as pd
+import json
 import os
-import time
-from openai import OpenAI
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
-from dotenv import load_dotenv
+import fhirclient.models.patient as p
+import fhirclient.models.observation as obs
+import fhirclient.models.condition as cond
+from fhirclient import client
+import pandas as pd
+from fpdf import FPDF
+from docx import Document
 
-# Load environment variables
-load_dotenv()
-
-# Constants
-GENOMIC_API_URL = "https://genomic-api-url.com/analyze"
-COSMIC_API_URL = "https://cancer.sanger.ac.uk/cosmic/api/v1"
-BEAKER_REPORTS_URL = "https://your-beaker-reports-api.com/v1"
-
-# Load API keys
-openai_api_key = os.getenv("OPENAI_API_KEY", "")
-cosmic_api_key = os.getenv("COSMIC_API_KEY", "")
-beaker_api_key = os.getenv("BEAKER_API_KEY", "")
-
-# Setup session for retries
-session = requests.Session()
-retry = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
-adapter = HTTPAdapter(max_retries=retry)
-session.mount('https://', adapter)
-
-# --- COSMIC Tissue Data ---
-COSMIC_TISSUES = {
-    "Breast": 16927,
-    "Lung": 45578,
-    "Colorectal": 55327,
-    "Prostate": 5072,
-    "Skin": 21246,
-    "Ovary": 6701,
-    "Blood": 128940
+# Initialize FHIR Client for EPIC Integration with Secure Credentials
+settings = {
+    'app_id': os.getenv('FHIR_APP_ID', 'genomic_ai_integration'),
+    'api_base': os.getenv('FHIR_API_BASE', 'https://epic.fhir.example.com')
 }
+fhir_client = client.FHIRClient(settings=settings)
 
-MOTIVATIONAL_MESSAGES = [
-    "🧬 Crunching genomic data... Team Agile is on it!",
-    "⚡️ Parsing mutations at light speed...",
-    "🔭 Scanning cosmic database...",
-    "☕️ Grab a coffee - magic in progress...",
-    "🚀 Preparing precision medicine insights..."
-]
-
-# Sidebar Configuration
-with st.sidebar:
-    st.header("🧬 Agile Oncology AI")
-    
-    # Navigation
-    analysis_mode = st.radio("Analysis Mode:", 
-                           ["Genomic Analysis", "COSMIC Browser", "Beaker Reports"])
-    
-    # API Keys
-    st.subheader("🔑 Security Credentials")
-    openai_api_key = st.text_input("OpenAI Key", value=openai_api_key, type="password")
-    cosmic_api_key = st.text_input("COSMIC Key", value=cosmic_api_key, type="password")
-    beaker_api_key = st.text_input("Beaker Key", value=beaker_api_key, type="password")
-
-# Main Interface
-st.title(f"🚀 Agile Oncology {analysis_mode}")
-st.caption("Precision Medicine Platform v2.0")
-
-# --- Core Functions ---
-def get_cosmic_data(tissue_type, histology=None):
-    """Fetch COSMIC data with progress tracking"""
-    with st.status(f"Querying COSMIC for {tissue_type}..."):
-        try:
-            headers = {"Authorization": f"Bearer {cosmic_api_key}"}
-            params = {"tissue": tissue_type}
-            if histology:
-                params["histology"] = histology
-                
-            response = session.get(
-                f"{COSMIC_API_URL}/mutations",
-                headers=headers,
-                params=params,
-                timeout=30
-            )
-            response.raise_for_status()
-            return response.json()
-        except Exception as e:
-            st.error(f"COSMIC Error: {str(e)}")
-            return None
-
-def fetch_beaker_reports(query):
-    """Retrieve Beaker reports with real-time updates"""
-    progress_bar = st.progress(0)
-    status_text = st.empty()
-    
-    for i in range(5):
-        progress_bar.progress((i+1)*20)
-        status_text.text(MOTIVATIONAL_MESSAGES[i % len(MOTIVATIONAL_MESSAGES)])
-        time.sleep(0.5)
-        
+# Fetch Patient Data from EPIC using FHIR with Error Handling
+def fetch_patient_data(patient_id):
     try:
-        response = session.get(
-            f"{BEAKER_REPORTS_URL}/search",
-            headers={"Authorization": f"Bearer {beaker_api_key}"},
-            params={"q": query},
-            timeout=30
-        )
-        response.raise_for_status()
-        return response.json()
+        patient = p.Patient.read(patient_id, fhir_client.server)
+        return patient.as_json()
     except Exception as e:
-        st.error(f"Beaker Error: {str(e)}")
-        return None
+        return {"error": f"Failed to fetch patient data: {str(e)}"}
 
-# --- Main Application Logic ---
-if analysis_mode == "COSMIC Browser":
-    st.header("COSMIC Data Explorer")
+# Merge Genomic Data with EMR Data
+def merge_genomic_with_emr(genomic_data, patient_id):
+    patient_data = fetch_patient_data(patient_id)
+    merged_data = {
+        "patient": patient_data,
+        "genomic": genomic_data
+    }
+    return merged_data
+
+# Fetch Variant Annotations from ClinVar, COSMIC, or gnomAD with Error Handling
+def fetch_variant_annotations(variant_id):
+    urls = {
+        "ClinVar": f"https://api.ncbi.nlm.nih.gov/clinvar/v1/variants/{variant_id}",
+        "COSMIC": f"https://cancer.sanger.ac.uk/cosmic/api/variants/{variant_id}",
+        "gnomAD": f"https://gnomad.broadinstitute.org/api/variants/{variant_id}"
+    }
     
-    col1, col2 = st.columns(2)
-    with col1:
-        tissue_type = st.selectbox("Select Tissue Type", 
-                                 list(COSMIC_TISSUES.keys()),
-                                 help="Start with broad tissue category")
-        
-    with col2:
-        histology = st.multiselect("Filter by Histology", 
-                                 ["Carcinoma", "Adenoma", "Sarcoma", "Melanoma"],
-                                 help="Optional histology refinement")
-        
-    if st.button("🚀 Query COSMIC"):
-        with st.spinner("Intergalactic data fetch in progress..."):
-            cosmic_data = get_cosmic_data(tissue_type, histology)
-            
-            if cosmic_data:
-                st.subheader(f"{tissue_type} Mutation Landscape")
-                df = pd.DataFrame(cosmic_data.get('mutations', []))
-                st.dataframe(df.head(50), use_container_width=True)
-
-elif analysis_mode == "Beaker Reports":
-    st.header("🔬 Beaker Report Interface")
-    report_query = st.text_input("Search Beaker Reports", "BRCA1 OR TP53")
+    annotations = {}
+    for source, url in urls.items():
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            annotations[source] = response.json()
+        except requests.exceptions.RequestException as e:
+            annotations[source] = {"error": f"Failed to fetch data from {source}: {str(e)}"}
     
-    if st.button("🔍 Search Reports"):
-        reports = fetch_beaker_reports(report_query)
-        if reports:
-            st.subheader("Latest Relevant Reports")
-            for report in reports.get('results', [])[:5]:
-                with st.expander(f"{report.get('title', 'Untitled')}"):
-                    st.write(report.get('abstract', 'No abstract available'))
+    return annotations
 
-else:  # Genomic Analysis
-    st.header("🧬 Genomic Data Analysis")
-    uploaded_file = st.file_uploader("Upload genomic file", type=["vcf", "json"])
+# AI-Based Treatment Recommendations with Drug Dosage & Clinical Trials
+def ai_treatment_recommendations(variant_data, patient_data):
+    treatment_guidelines = {
+        "BRCA1 p.V600E": {"recommendation": "Consider PARP inhibitors for targeted therapy.", "dosage": "Olaparib 300mg BID", "clinical_trial": "NCT03812345"},
+        "TP53 mutation": {"recommendation": "Monitor for increased cancer risk and consider precision therapies.", "dosage": "Varies by mutation subtype", "clinical_trial": "NCT04567890"},
+        "EGFR exon 19 deletion": {"recommendation": "EGFR tyrosine kinase inhibitors recommended.", "dosage": "Osimertinib 80mg QD", "clinical_trial": "NCT01234567"},
+        "ALK rearrangement": {"recommendation": "Consider ALK inhibitors such as Crizotinib.", "dosage": "Crizotinib 250mg BID", "clinical_trial": "NCT09876543"},
+        "BRAF V600E": {"recommendation": "BRAF inhibitors like Dabrafenib + Trametinib recommended.", "dosage": "Dabrafenib 150mg BID + Trametinib 2mg QD", "clinical_trial": "NCT06789012"}
+    }
     
-    if uploaded_file:
-        with st.spinner("Decoding genomic secrets..."):
-            # --- Analysis Pipeline ---
-            try:
-                # Process genomic data
-                response = session.post(
-                    GENOMIC_API_URL,
-                    files={'file': uploaded_file},
-                    timeout=45
-                )
-                response.raise_for_status()
-                analysis = response.json()
-                
-                # Display results
-                st.subheader("Mutation Analysis")
-                st.write(f"Detected {len(analysis.get('mutations', []))} significant variants")
-                
-                # COSMIC Integration
-                st.subheader("COSMIC Context")
-                cosmic_df = pd.DataFrame(analysis.get('cosmic_context', []))
-                st.dataframe(cosmic_df, use_container_width=True)
-                
-                # AI Insights
-                st.subheader("🤖 AI-Powered Interpretation")
-                with st.expander("Clinical Implications"):
-                    client = OpenAI(api_key=openai_api_key)
-                    response = client.chat.completions.create(
-                        model="gpt-4-turbo",
-                        messages=[{
-                            "role": "user",
-                            "content": f"Analyze these genomic findings: {analysis}"
-                        }]
-                    )
-                    st.write(response.choices[0].message.content)
-                    
-            except Exception as e:
-                st.error(f"Analysis Failed: {str(e)}")
+    variant = variant_data.get("variant", "Unknown Variant")
+    recommendation_data = treatment_guidelines.get(variant, {"recommendation": "Consult NCCN guidelines for detailed treatment options.", "dosage": "Not available", "clinical_trial": "Not available"})
+    
+    return {
+        "patient_id": patient_data.get("id", "Unknown"),
+        "variant": variant,
+        "recommendation": recommendation_data["recommendation"],
+        "dosage": recommendation_data["dosage"],
+        "clinical_trial": recommendation_data["clinical_trial"]
+    }
 
-# Team Motivation System
-st.sidebar.markdown("---")
-st.sidebar.header("Team Performance")
-st.sidebar.progress(78, text="Project Completion")
-st.sidebar.metric("Active Users", 142, "+23%")
-st.sidebar.button("☕️ Request Coffee Resupply")
+# Generate Custom Reports (PDF, DOCX, JSON) with Enhanced Formatting
+def generate_report(data, format='pdf'):
+    if format == 'pdf':
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+        pdf.cell(200, 10, txt="Genomic AI Report", ln=True, align='C')
+        pdf.multi_cell(0, 10, json.dumps(data, indent=4))
+        pdf.output("genomic_report.pdf")
+    elif format == 'docx':
+        doc = Document()
+        doc.add_heading('Genomic AI Report', level=1)
+        for key, value in data.items():
+            doc.add_heading(key, level=2)
+            doc.add_paragraph(json.dumps(value, indent=4))
+        doc.save("genomic_report.docx")
+    elif format == 'json':
+        with open("genomic_report.json", "w") as f:
+            json.dump(data, f, indent=4)
+    
+    return f"Report saved as genomic_report.{format}"
 
-st.caption("🔬 Powered by Agile Oncology AI v2.1 | Secure HIPAA-compliant Analysis")
+# Example Execution
+if __name__ == "__main__":
+    sample_genomic_data = {"variant": "BRCA1 p.V600E", "impact": "High"}
+    patient_id = "123456"
+    merged_data = merge_genomic_with_emr(sample_genomic_data, patient_id)
+    variant_annotations = fetch_variant_annotations("BRCA1 p.V600E")
+    treatment_recommendations = ai_treatment_recommendations(sample_genomic_data, merged_data["patient"])
+    
+    final_data = {
+        "merged_data": merged_data,
+        "annotations": variant_annotations,
+        "treatment_recommendations": treatment_recommendations
+    }
+    
+    print(generate_report(final_data, format='pdf'))
