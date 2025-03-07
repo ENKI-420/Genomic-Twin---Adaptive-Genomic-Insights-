@@ -1,4 +1,8 @@
-import streamlit as st
+import sys
+import os
+
+print("sys.path:", sys.path)
+print("PYTHONPATH:", os.getenv('PYTHONPATH'))import streamlit as st
 import os
 from dotenv import load_dotenv
 from modules.genomic_ai_module import analyze_genomic_data, plot_mutation_data, ai_genomic_interpretation, generate_reports
