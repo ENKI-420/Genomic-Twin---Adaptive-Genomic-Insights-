@@ -6,7 +6,8 @@ __all__ = [
     'simulate_delivery',
     'find_trials',
     'log_pharmacovigilance',
-    'fetch_beaker_data'
+    'fetch_beaker_data',
+    'genomic_ai_module'  # Add this line
 ]
 
 # Initialize submodules
@@ -17,3 +18,4 @@ from .nanoparticle_simulation import simulate_delivery
 from .clinical_trials import find_trials
 from .blockchain import log_pharmacovigilance
 from .beaker_report import fetch_beaker_data
+from .genomic_ai_module import analyze_genomic_data, plot_mutation_data, ai_genomic_interpretation, generate_reports
