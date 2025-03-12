@@ -1,15 +1,9 @@
-import sys
-import os
-
-print("sys.path:", sys.path)
-print("PYTHONPATH:", os.getenv('PYTHONPATH'))import streamlit as st
-import os
+import streamlit as st
 from dotenv import load_dotenv
 from modules.genomic_ai_module import analyze_genomic_data, plot_mutation_data, ai_genomic_interpretation, generate_reports
 from modules.beaker_report import fetch_beaker_data
 from modules.clinical_trials import find_trials
 from modules.utils import authenticate_epic, fetch_patient_data
-from modules.chatbot import ai_chat_response
 
 # Load environment variables
 load_dotenv()
@@ -52,7 +46,7 @@ if 'token' in st.session_state:
 
             st.dataframe(mutations_df)
             plot_mutation_data(mutations_df)
-            report_path = generate_reports(mutations_df, patient_data, insights=ai_genomic_interpretation(mutations_df), format_type=report_format)
+            report_path = generate_reports(mutations_df, patient_data, insights=ai_insights, format_type=report_format)
 
             with open(report_path, "rb") as file:
                 st.download_button("Download Report", file_name=report_path, data=file, mime="application/octet-stream")
@@ -60,14 +54,14 @@ if 'token' in st.session_state:
 
     elif analysis_mode == "Beaker Reports":
         if st.button("Fetch Beaker Reports"):
-            reports = fetch_beaker_reports(patient_id, st.session_state['token'])
+            reports = fetch_beaker_data(patient_id, st.session_state['token'])
             st.dataframe(reports)
 
     elif analysis_mode == "Clinical Trial Matching":
         mutations_input = st.text_input("Enter mutations (comma-separated)")
         if st.button("Find Matching Trials"):
             mutations = mutations_input.split(',')
-            trials = match_clinical_trials(mutations)
+            trials = find_trials(mutations)
             st.json(trials)
 
     elif analysis_mode == "AI Chatbot":
