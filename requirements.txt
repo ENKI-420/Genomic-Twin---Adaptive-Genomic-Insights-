@@ -11,3 +11,4 @@ python-dotenv
 fhirclient
 fpdf
 python-docx
+streamlit

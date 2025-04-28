@@ -4,6 +4,7 @@ from modules.genomic_ai_module import analyze_genomic_data, plot_mutation_data, 
 from modules.beaker_report import fetch_beaker_data
 from modules.clinical_trials import find_trials
 from modules.utils import authenticate_epic, fetch_patient_data
+from modules.digital_twins import generate_digital_twin
 
 # Load environment variables
 load_dotenv()
@@ -43,6 +44,7 @@ if 'token' in st.session_state:
             mutations_df = analyze_genomic_data(uploaded_file)
             patient_data = fetch_patient_data(patient_id, st.session_state['token'])
             ai_insights = ai_genomic_interpretation(mutations_df)
+            digital_twin = generate_digital_twin(patient_data)
 
             st.dataframe(mutations_df)
             plot_mutation_data(mutations_df)
