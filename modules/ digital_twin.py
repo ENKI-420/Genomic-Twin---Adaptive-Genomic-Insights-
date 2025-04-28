@@ -6,8 +6,8 @@ FHIR_BASE_URL = "https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4/"
 OAUTH_URL = "https://fhir.epic.com/interconnect-fhir-oauth/oauth2/token"
 
 # Define the Epic client credentials
-EPIC_CLIENT_ID = "your_client_id"
-EPIC_CLIENT_SECRET = "your_client_secret"
+EPIC_CLIENT_ID = "e098fdbf-3af1-4514-a08e-13cdbf4ba63c"
+EPIC_CLIENT_SECRET = "weAxZbabPXHYceNeitbVyCgrlPUuXYcZoBFLTI7+OAHzsQ26XGj4Qi2SpwT6jykWAjEjqoQU4vmJ05Qfg4fJHA=="
 
 def get_access_token():
     """
