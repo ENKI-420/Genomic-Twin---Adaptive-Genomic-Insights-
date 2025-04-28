@@ -114,6 +114,19 @@ def generate_genomic_insights(mutated_genes):
     except Exception as e:
         return f"Insight generation failed: {str(e)}"
 
+def analyze_mutations(genomic_data):
+    analysis_results = perform_genomic_data_analysis(genomic_data)
+    
+    if analysis_results:
+        mutated_genes = analysis_results.get("mutated_genes", [])
+        if mutated_genes:
+            insights = generate_genomic_insights(mutated_genes)
+            return {
+                "analysis_results": analysis_results,
+                "insights": insights
+            }
+    return None
+
 # Main Application Flow
 st.subheader("🧬 Upload and Analyze Genomic Data")
 uploaded_file = st.file_uploader("Upload genomic file (VCF, JSON)", type=["vcf", "json"])
