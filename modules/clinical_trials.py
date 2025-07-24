@@ -106,27 +106,98 @@ def integrate_trials_into_report(ai_report, trials):
     
     return f"{ai_report}\n\n{trial_section}"
 
-# Streamlit UI Additions
-if selected_option == "Genomic AI Analysis":
-    # ... previous UI code ...
+
+def find_trials(mutations, location=None, phase=None):
+    """
+    Find clinical trials for given mutations
     
-    with st.expander("🌍 Clinical Trial Search Parameters"):
-        cols = st.columns(2)
-        with cols[0]:
-            location = st.text_input("Search Radius (City, State)", "New York, NY")
-        with cols[1]:
-            trial_phase = st.multiselect("Trial Phase", ["I", "II", "III", "IV"], ["II", "III"])
-            
-    # ... analysis button ...
-    
-    if analysis:
-        st.subheader("📊 Genomic Insights Report")
-        st.markdown(analysis)
+    Args:
+        mutations: List of mutations or single mutation string
+        location: Geographic location for trial search
+        phase: Trial phase filter
         
-        # Interactive trial explorer
-        st.subheader("🗺️ Trial Map Visualization")
-        trials = parse_trials_from_report(analysis)  # Implement parsing logic
-        if trials:
-            plot_trial_map(trials)
-        else:
-            st.info("No trial geographic data available")
+    Returns:
+        Dictionary with trial information
+    """
+    if isinstance(mutations, str):
+        mutations = [mutations]
+    
+    try:
+        # Convert mutations to biomarkers/conditions
+        conditions = []
+        biomarkers = []
+        
+        for mutation in mutations:
+            if mutation.strip():
+                # Simple parsing - could be enhanced
+                if any(gene in mutation.upper() for gene in ['TP53', 'BRCA', 'EGFR', 'KRAS']):
+                    biomarkers.append(mutation)
+                else:
+                    conditions.append(mutation)
+        
+        # Default to cancer if no specific conditions
+        if not conditions:
+            conditions = ['cancer']
+        
+        trials = fetch_clinical_trials(
+            conditions=conditions,
+            biomarkers=biomarkers,
+            location=location,
+            phase=phase
+        )
+        
+        return parse_trial_data(trials)
+        
+    except Exception as e:
+        return {'error': str(e), 'trials': []}
+
+
+# Utility functions for UI integration (to be used in main app)
+def get_trial_search_ui():
+    """Return Streamlit UI elements for trial search"""
+    try:
+        import streamlit as st
+        with st.expander("🌍 Clinical Trial Search Parameters"):
+            cols = st.columns(2)
+            with cols[0]:
+                location = st.text_input("Search Radius (City, State)", "New York, NY")
+            with cols[1]:
+                trial_phase = st.multiselect("Trial Phase", ["I", "II", "III", "IV"], ["II", "III"])
+            return location, trial_phase
+    except ImportError:
+        return None, None
+
+
+def display_trial_results(analysis):
+    """Display trial results in Streamlit"""
+    try:
+        import streamlit as st
+        if analysis:
+            st.subheader("📊 Genomic Insights Report")
+            st.markdown(analysis)
+            
+            # Interactive trial explorer
+            st.subheader("🗺️ Trial Map Visualization")
+            trials = parse_trials_from_report(analysis)  # Implement parsing logic
+            if trials:
+                plot_trial_map(trials)
+            else:
+                st.info("No trial geographic data available")
+    except ImportError:
+        pass
+
+
+def parse_trials_from_report(report_text):
+    """Parse trial information from report text"""
+    # Simple implementation - could be enhanced with NLP
+    return []
+
+
+def plot_trial_map(trials):
+    """Plot trials on a map"""
+    # Placeholder for map visualization
+    try:
+        import streamlit as st
+        st.info("Trial map visualization would be displayed here")
+    except ImportError:
+        pass

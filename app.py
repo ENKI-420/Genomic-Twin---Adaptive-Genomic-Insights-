@@ -4,7 +4,8 @@ from modules.genomic_ai_module import analyze_genomic_data, plot_mutation_data, 
 from modules.beaker_report import fetch_beaker_data
 from modules.clinical_trials import find_trials
 from modules.utils import authenticate_epic, fetch_patient_data
-from modules.digital_twins import generate_digital_twin
+from modules.digital_twin import generate_digital_twin
+from modules.gcloud_auth import gcloud_login, is_authenticated as gcloud_is_authenticated, setup_authentication_instructions
 
 # Load environment variables
 load_dotenv()
@@ -31,6 +32,33 @@ with st.sidebar:
             st.success("Authenticated with Epic!")
         else:
             st.error("Authentication failed.")
+    
+    st.subheader("☁️ Google Cloud Authentication")
+    gcloud_status = gcloud_is_authenticated()
+    
+    if gcloud_status:
+        st.success("✅ Google Cloud authenticated")
+    else:
+        st.warning("⚠️ Google Cloud not authenticated")
+        
+        auth_method = st.selectbox("Authentication Method", 
+                                 ["Default (gcloud CLI)", "Service Account", "Setup Instructions"])
+        
+        if auth_method == "Setup Instructions":
+            if st.button("Show Setup Instructions"):
+                instructions = setup_authentication_instructions()
+                st.text_area("Setup Instructions", instructions, height=200)
+        else:
+            if st.button("Authenticate Google Cloud"):
+                method = 'default' if auth_method == "Default (gcloud CLI)" else 'service_account'
+                if gcloud_login(method):
+                    st.success("Google Cloud authentication successful!")
+                    st.experimental_rerun()
+                else:
+                    st.error("Google Cloud authentication failed. Check the setup instructions.")
+    
+    # Show authentication status
+    st.caption(f"GCloud Status: {'✅' if gcloud_status else '❌'}")
 
 # Main UI logic
 if 'token' in st.session_state:
@@ -69,7 +97,8 @@ if 'token' in st.session_state:
     elif analysis_mode == "AI Chatbot":
         user_query = st.text_area("Ask Agile Oncology AI")
         if st.button("Get AI Response"):
-            response = ai_chat_response(user_query)
+            # Simple AI response function (placeholder)
+            response = f"AI Analysis for: '{user_query}'\n\nThis is a placeholder response. In a full implementation, this would connect to an AI service to provide genomic insights."
             st.write(response)
 
 else:
