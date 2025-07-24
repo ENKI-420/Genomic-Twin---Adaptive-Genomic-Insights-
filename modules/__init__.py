@@ -12,7 +12,7 @@ __all__ = [
 
 # Initialize submodules
 from .mutation_analysis import analyze_mutations
-from .digital_twins import generate_digital_twin
+from .digital_twin import generate_digital_twin
 from .crispr_ai import crispr_feasibility
 from .nanoparticle_simulation import simulate_delivery
 from .clinical_trials import find_trials

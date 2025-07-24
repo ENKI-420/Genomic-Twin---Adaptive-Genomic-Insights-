@@ -4,7 +4,7 @@ from modules.genomic_ai_module import analyze_genomic_data, plot_mutation_data, 
 from modules.beaker_report import fetch_beaker_data
 from modules.clinical_trials import find_trials
 from modules.utils import authenticate_epic, fetch_patient_data
-from modules.digital_twins import generate_digital_twin
+from modules.digital_twin import generate_digital_twin
 
 # Load environment variables
 load_dotenv()
