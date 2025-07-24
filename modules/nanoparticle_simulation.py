@@ -103,3 +103,51 @@ if __name__ == "__main__":
     print(dist_results)
     
     simulator.plot_results(pk_results, dist_results)  # Visualize results
+
+
+def simulate_delivery(dose: float = 100, elimination_rate: float = 0.15, 
+                     distribution: Dict[str, float] = None, 
+                     size: float = 100, charge: float = -20,
+                     hours: int = 24) -> Dict:
+    """
+    Convenience function to simulate nanoparticle delivery
+    
+    Args:
+        dose: Initial dose in mg/kg
+        elimination_rate: Elimination rate constant (1/hours)
+        distribution: Organ distribution percentages
+        size: Nanoparticle diameter in nm
+        charge: Surface charge in mV
+        hours: Simulation duration in hours
+        
+    Returns:
+        Dictionary with simulation results
+    """
+    if distribution is None:
+        distribution = {'Liver': 50, 'Kidney': 30, 'Lung': 20}
+    
+    try:
+        simulator = NanoparticleDeliverySimulator(
+            dose=dose,
+            elimination_rate=elimination_rate,
+            distribution=distribution,
+            size=size,
+            charge=charge
+        )
+        
+        pk_results = simulator.simulate_pk(hours=hours)
+        dist_results = simulator.simulate_distribution()
+        
+        return {
+            'pharmacokinetics': pk_results.to_dict('records'),
+            'distribution': dist_results.to_dict('records'),
+            'parameters': {
+                'dose': dose,
+                'elimination_rate': elimination_rate,
+                'size': size,
+                'charge': charge,
+                'hours': hours
+            }
+        }
+    except Exception as e:
+        return {'error': str(e)}
