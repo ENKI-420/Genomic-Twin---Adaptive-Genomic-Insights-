@@ -1,5 +1,6 @@
 import requests
 import json
+import random
 
 # Define the FHIR API base URL and OAuth URL
 FHIR_BASE_URL = "https://fhir.epic.com/interconnect-fhir-oauth/api/FHIR/R4/"

@@ -1,0 +1,37 @@
+# Development Environment IAM Policy
+# Relaxed access control for DNA-Lang development environment
+
+bindings:
+  # Development Team (Full access within limits)
+  - members:
+      - "group:dna-lang-developers@company.com"
+    role: "roles/editor"
+
+  # Development Application Service Account
+  - members:
+      - "serviceAccount:dna-lang-dev-app@dna-lang-dev.iam.gserviceaccount.com"
+    role: "roles/genomics.editor"
+    
+  - members:
+      - "serviceAccount:dna-lang-dev-app@dna-lang-dev.iam.gserviceaccount.com"
+    role: "roles/bigquery.dataEditor"
+    
+  - members:
+      - "serviceAccount:dna-lang-dev-app@dna-lang-dev.iam.gserviceaccount.com"
+    role: "roles/storage.objectAdmin"
+
+  # Data Scientists (Development access)
+  - members:
+      - "group:dna-lang-data-scientists@company.com"
+    role: "roles/genomics.editor"
+
+  # QA Team (Testing access)
+  - members:
+      - "group:dna-lang-qa@company.com"
+    role: "roles/viewer"
+
+# Audit Configuration (Minimal for development)
+auditConfigs:
+  - service: "bigquery.googleapis.com"
+    auditLogConfigs:
+      - logType: "ADMIN_READ"

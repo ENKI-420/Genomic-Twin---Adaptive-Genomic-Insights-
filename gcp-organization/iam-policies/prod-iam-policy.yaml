@@ -1,0 +1,57 @@
+# Production Environment IAM Policy
+# Strict access control for DNA-Lang production environment
+
+bindings:
+  # Production Administrators (Limited access)
+  - members:
+      - "group:dna-lang-prod-admins@company.com"
+    role: "roles/owner"
+    condition:
+      title: "MFA Required"
+      description: "Requires multi-factor authentication"
+      expression: "has({}.assertion.mfa)"
+
+  # Production Application Service Account
+  - members:
+      - "serviceAccount:dna-lang-prod-app@dna-lang-prod.iam.gserviceaccount.com"
+    role: "roles/genomics.viewer"
+    
+  - members:
+      - "serviceAccount:dna-lang-prod-app@dna-lang-prod.iam.gserviceaccount.com"
+    role: "roles/bigquery.dataViewer"
+    
+  - members:
+      - "serviceAccount:dna-lang-prod-app@dna-lang-prod.iam.gserviceaccount.com"
+    role: "roles/storage.objectViewer"
+
+  # Production Data Scientists (Read-only access)
+  - members:
+      - "group:dna-lang-data-scientists@company.com"
+    role: "roles/genomics.viewer"
+    condition:
+      title: "Read Only Access"
+      description: "Limited to read operations only"
+      expression: "request.auth.claims.aud == 'read-only'"
+
+  # Security Team (Monitoring access)
+  - members:
+      - "group:security-team@company.com"
+    role: "roles/logging.viewer"
+    
+  - members:
+      - "group:security-team@company.com"
+    role: "roles/monitoring.viewer"
+
+# Audit Configuration
+auditConfigs:
+  - service: "bigquery.googleapis.com"
+    auditLogConfigs:
+      - logType: "ADMIN_READ"
+      - logType: "DATA_READ"
+      - logType: "DATA_WRITE"
+        
+  - service: "storage.googleapis.com"
+    auditLogConfigs:
+      - logType: "ADMIN_READ"
+      - logType: "DATA_READ"
+      - logType: "DATA_WRITE"
