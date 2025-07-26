@@ -13,3 +13,6 @@ fpdf
 python-docx
 streamlit
 pyyaml
+google-cloud-bigquery
+google-cloud-storage
+tabulate
