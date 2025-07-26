@@ -169,3 +169,8 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# DNA-Lang Demo specific files
+dna-lang-evolution-test-*/
+*.tmp
+.evolution_temp/
