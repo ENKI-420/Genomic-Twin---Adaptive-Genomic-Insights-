@@ -24,7 +24,7 @@ except ImportError:
     logging.warning("TensorFlow not available. Some ML features may be limited.")
 
 # Import our authentication module
-from .gcloud_auth import get_auth_instance, gcloud_login
+from modules.gcloud_auth import get_auth_instance, gcloud_login
 
 logging.basicConfig(level=logging.INFO)
 
