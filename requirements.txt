@@ -12,3 +12,4 @@ fhirclient
 fpdf
 python-docx
 streamlit
+pyyaml
