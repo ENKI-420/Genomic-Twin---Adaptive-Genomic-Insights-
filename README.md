@@ -1,191 +1,110 @@
-# DNA-Lang Genomic Twin - Adaptive Genomic Insights Platform
+# DNA-Lang: The Autonomous Bio-Digital Platform
 
-An AI-powered genomic analysis platform offering tools for mutation analysis, digital twin simulations, clinical trial matching, and advanced genomic insights with seamless Google Cloud deployment.
+An AI-powered platform that creates living digital twins—self-evolving, self-managing software organisms that provide adaptive genomic insights and autonomously orchestrate their own cloud infrastructure on Google Cloud.
 
-## 🚀 Quick Deploy to Google Cloud
+## 🚀 One-Click Deploy to Google Cloud
 
-Deploy the complete DNA-Lang ecosystem to Google Cloud with just one click:
+Launch the entire platform, including the evolution engine, digital twin simulator, and dashboard, to your Google Cloud project in minutes.
 
 [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-in-cloud-shell.svg)](https://shell.cloud.google.com/cloudshell_open?git_repo=https://github.com/ENKI-420/Genomic-Twin---Adaptive-Genomic-Insights-&tutorial=README.md&shellonly=true)
 
-After opening Cloud Shell, run:
-```bash
-chmod +x setup.sh && ./setup.sh
+After opening Cloud Shell, the setup script will guide you through an automated deployment.
+
+## 🎯 Executive Summary
+
+The DNA-Lang Autonomous Bio-Digital Platform represents a paradigm shift in both cloud computing and precision medicine. By treating genomic digital twins as living software organisms, we unlock the ability for them to evolve, adapt, and self-optimize in response to new data. Each organism autonomously provisions and scales its own secure cloud infrastructure, runs complex simulations, and provides real-time insights, creating a truly adaptive system for next-generation genomic analysis.
+
+**Key Features:**
+
+- **Living Digital Twins**: Organisms that model genomic data and evolve over time.
+- **Autonomous Infrastructure**: Each organism provisions and manages its own secure GCP resources via Terraform.
+- **Real-time Evolution Engine**: Organisms mutate and adapt based on new clinical data or research findings.
+- **AI-Powered Agents**: A team of AI agents manages infrastructure, tracks lineage, and optimizes the ecosystem.
+- **Interactive Dashboard**: A unified interface to monitor organism evolution, run simulations, and view genomic insights.
+
+## 🏗️ Architecture
+
+```
+graph TD
+    subgraph "User Interface"
+        A[Streamlit/React Dashboard]
+    end
+
+    subgraph "Google Cloud Platform"
+        B[Cloud Run: API & Evolution Engine]
+        C[Cloud SQL: Genomic & State Data]
+        D[Pub/Sub: Event Bus]
+        E[Terraform: IaC Provisioner]
+    end
+
+    subgraph "Autonomous Agents"
+        F[Cloud Architect Agent]
+        G[Biography Agent]
+        H[Meta-Cognition Agent]
+    end
+
+    A -- "API Calls / WebSocket" --> B
+    B -- "Reads/Writes" --> C
+    B -- "Publishes Events" --> D
+    B -- "Triggers" --> E
+    D -- "Triggers" --> F
+    D -- "Triggers" --> G
+    D -- "Triggers" --> H
 ```
 
-## 🏗️ Deployment Options
+## 🚀 Quick Start & Development
 
-### Option 1: One-Click Cloud Shell Deployment (Recommended for Quick Start)
-Perfect for demos and rapid deployment. Uses our automated setup script to deploy everything in minutes.
+### 1. Prerequisites
+- A Google Cloud Project with billing enabled.
+- gcloud CLI, Node.js, and Python 3.10+ installed locally.
 
-**Features:**
-- Interactive Google Cloud project selection
-- Automated API enablement
-- Cloud SQL PostgreSQL database setup
-- Pub/Sub event processing
-- Cloud Run containerized deployment
-- Automatic scaling and load balancing
+### 2. Cloud Deployment (Recommended)
+Click the "Open in Cloud Shell" button above and follow the on-screen instructions. The script handles all API enablement and resource deployment.
 
-### Option 2: Terraform + Cloud Build (Production Ready)
-Robust Infrastructure as Code approach for scalable, repeatable deployments.
+### 3. Local Development
 
-**Prerequisites:**
-- Google Cloud Project with billing enabled
-- Cloud Build API enabled
-- Terraform knowledge (optional)
-
-**Deploy using Cloud Build:**
-1. Fork this repository
-2. Create a Cloud Build trigger pointing to `cloudbuild.yaml`
-3. Run the trigger with your project ID
-4. Monitor deployment in Cloud Build console
-
-### Option 3: Google Cloud Marketplace (Coming Soon)
-Enterprise-grade deployment with integrated billing and subscription management.
-
-## 🧬 Platform Modules
-
-- **Genomic Analysis Engine** - Advanced mutation analysis and interpretation
-- **Digital Twin Simulation** - Patient-specific genomic modeling
-- **Clinical Trial Matching** - AI-powered trial recommendation
-- **CRISPR Feasibility Analysis** - Gene editing potential assessment
-- **Nanoparticle Delivery Optimization** - Targeted therapy design
-- **Blockchain Genomic Monitoring** - Secure, traceable genomic data
-- **Market Analytics Dashboard** - Genomic trends and insights
-
-## 🛠️ Local Development
-
-### Prerequisites
-- Python 3.10+
-- Node.js 16+
-- Google Cloud SDK (optional for local testing)
-
-### Setup
+**Clone the repository:**
 ```bash
-# Install Python dependencies
-pip install -r requirements.txt
+git clone https://github.com/ENKI-420/Genomic-Twin---Adaptive-Genomic-Insights-.git
+cd Genomic-Twin---Adaptive-Genomic-Insights-
+```
 
-# Install Node.js dependencies
+**Configure Environment:**
+Copy `.env.example` to `.env` and fill in your GCP Project ID and local database credentials.
+
+**Install Dependencies & Run:**
+```bash
+# Install backend (evolution engine & agents) dependencies
 npm install
 
-# Run the Streamlit application
+# Install frontend (dashboard) dependencies
+pip install -r requirements.txt
+
+# Start the backend services (in one terminal)
+npm run start:backend
+
+# Start the frontend dashboard (in another terminal)
 streamlit run app.py
-
-# Run individual AI agents
-npm run bio          # Biography agent
-npm run meta         # Meta-cognition agent
-npm run lineage      # Lineage generator
 ```
 
-### Environment Variables
-Create a `.env` file with:
-```env
-DATABASE_URL=postgresql://username:password@localhost/genomic_twin_db
-PROJECT_ID=your-gcp-project-id
-PUBSUB_TOPIC=dnalang-genomic-events
-EPIC_API_URL=https://fhir.epic.com/interconnect-fhir-oauth
-```
-
-## 📊 Architecture
+## 📁 Unified Project Structure
 
 ```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Streamlit     │    │   Cloud Run      │    │   Cloud SQL     │
-│   Frontend      │────│   Application    │────│   PostgreSQL    │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
-         │                       │                       │
-         │              ┌────────────────┐              │
-         └──────────────│   Pub/Sub      │──────────────┘
-                        │   Event Bus    │
-                        └────────────────┘
-                                 │
-                    ┌─────────────────────────┐
-                    │   AI Processing         │
-                    │   - Biography Agent     │
-                    │   - Meta-Cognition      │
-                    │   - Evolution Engine    │
-                    └─────────────────────────┘
+.
+├── .github/workflows/      # CI/CD Pipeline for autonomous deployment
+│   └── main.yml
+├── backend/                # Node.js Evolution Engine & AI Agents
+│   ├── agents/
+│   ├── evolution_engine.js
+│   └── cloud_provisioner.js
+├── frontend/               # Python Streamlit Dashboard & UI
+│   ├── app.py
+│   └── requirements.txt
+├── terraform/              # Master Terraform modules for GCP
+│   └── main.tf
+├── setup.sh                # Automated Cloud Shell deployment script
+├── cloudbuild.yaml         # Production-ready CI/CD configuration
+└── README.md               # This file
 ```
 
-## 🔧 Configuration Files
-
-| File | Purpose |
-|------|---------|
-| `setup.sh` | One-click deployment script |
-| `Dockerfile` | Container configuration |
-| `cloudbuild.yaml` | CI/CD pipeline configuration |
-| `terraform/` | Infrastructure as Code |
-| `main.tf` | Legacy Terraform (preserved) |
-
-## 📚 API Documentation
-
-### Genomic Analysis Endpoints
-- `POST /analyze` - Upload and analyze genomic data
-- `GET /reports/{id}` - Retrieve analysis reports
-- `POST /digital-twin` - Generate patient digital twin
-- `GET /trials/{patient_id}` - Find matching clinical trials
-
-### WebSocket Events
-- `genomic_analysis_complete` - Analysis finished
-- `digital_twin_updated` - Twin model updated
-- `trial_match_found` - New trial match
-- `evolution_step` - AI evolution progress
-
-## 🧪 Testing
-
-```bash
-# Run Python tests
-python -m pytest tests/
-
-# Run Node.js tests  
-npm test
-
-# Test deployment locally
-docker build -t dnalang-test .
-docker run -p 8080:8080 dnalang-test
-```
-
-## 🔒 Security & Compliance
-
-- **HIPAA Compliant** - Secure genomic data handling
-- **SOC 2 Type II** - Enterprise security standards
-- **GDPR Ready** - EU data protection compliance
-- **Encryption** - Data encrypted at rest and in transit
-- **IAM Integration** - Google Cloud identity management
-
-## 🚀 Production Deployment
-
-### Scaling Configuration
-- **Auto-scaling**: 0-100 instances based on traffic
-- **Memory**: 2-8GB per instance (configurable)
-- **CPU**: 1-4 vCPUs per instance
-- **Database**: Scalable Cloud SQL with read replicas
-
-### Monitoring & Observability
-- Cloud Monitoring dashboards
-- Structured logging with Cloud Logging
-- Error reporting and alerting
-- Performance metrics and SLA monitoring
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-- **Documentation**: [Wiki](https://github.com/ENKI-420/Genomic-Twin---Adaptive-Genomic-Insights-/wiki)
-- **Issues**: [GitHub Issues](https://github.com/ENKI-420/Genomic-Twin---Adaptive-Genomic-Insights-/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/ENKI-420/Genomic-Twin---Adaptive-Genomic-Insights-/discussions)
-- **Email**: support@dnalang.io (coming soon)
-
----
-
-**🧬 Empowering Precision Medicine through AI-Driven Genomic Insights**
+This structure cleanly separates the backend brain (the Node.js evolution engine) from the frontend interface (the Streamlit dashboard), while centralizing infrastructure and deployment automation.
