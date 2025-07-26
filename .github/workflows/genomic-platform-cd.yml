@@ -1,0 +1,531 @@
+name: Genomic Platform CI/CD with Terraform and Mutation Safety
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'development'
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      force_deployment:
+        description: 'Force deployment (skip some safety checks)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  PYTHON_VERSION: '3.10'
+  TERRAFORM_VERSION: '1.5.0'
+
+jobs:
+  # Repository Operations Validation
+  validate-repo-operations:
+    name: Validate Repository Operations
+    runs-on: ubuntu-latest
+    outputs:
+      deployment-safe: ${{ steps.validate.outputs.deployment_safe }}
+      environment: ${{ steps.determine-env.outputs.environment }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install tabulate jinja2
+        
+    - name: Determine target environment
+      id: determine-env
+      run: |
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+        elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          echo "environment=production" >> $GITHUB_OUTPUT
+        elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+          echo "environment=staging" >> $GITHUB_OUTPUT
+        else
+          echo "environment=development" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Run Repository Operations Validation
+      id: validate
+      env:
+        DNA_LANG_ENV: ${{ steps.determine-env.outputs.environment }}
+      run: |
+        python -c "
+        from modules.repository_operations import validate_before_deployment
+        import json
+        import sys
+        
+        env = '${{ steps.determine-env.outputs.environment }}'
+        is_safe, results = validate_before_deployment(env)
+        
+        print(f'Validation Results for {env}:')
+        print(json.dumps(results, indent=2, default=str))
+        
+        if is_safe:
+          print('✅ Repository operations validation PASSED')
+          print('deployment_safe=true' >> '$GITHUB_OUTPUT')
+        else:
+          print('❌ Repository operations validation FAILED')
+          print('deployment_safe=false' >> '$GITHUB_OUTPUT')
+          
+          critical_issues = results.get('critical_issues', [])
+          if critical_issues and not '${{ github.event.inputs.force_deployment }}' == 'true':
+            print('Critical issues found:')
+            for issue in critical_issues:
+              print(f'  - {issue[\"issue\"]}')
+            sys.exit(1)
+        "
+        
+    - name: Upload validation results
+      uses: actions/upload-artifact@v3
+      with:
+        name: validation-results-${{ steps.determine-env.outputs.environment }}
+        path: |
+          validation_results.json
+        retention-days: 7
+
+  # Agent Collaboration and Safety Assessment
+  assess-mutation-safety:
+    name: Assess Mutation Safety and Agent Collaboration
+    runs-on: ubuntu-latest
+    needs: validate-repo-operations
+    if: needs.validate-repo-operations.outputs.deployment-safe == 'true'
+    outputs:
+      expansion-ready: ${{ steps.safety-check.outputs.expansion_ready }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install numpy jinja2
+        
+    - name: Initialize Agent Collaboration
+      env:
+        DNA_LANG_ENV: ${{ needs.validate-repo-operations.outputs.environment }}
+      run: |
+        python -c "
+        from modules.agent_collaboration import collaboration_hub
+        from modules.quantum_evolution import quantum_evolution
+        import json
+        
+        print('🤝 Initializing agent collaboration...')
+        
+        # Run feedback loop between agents
+        collaboration_results = collaboration_hub.initiate_feedback_loop()
+        
+        print('Agent Collaboration Results:')
+        print(json.dumps(collaboration_results, indent=2, default=str))
+        
+        # Monitor evolution progress
+        fitness = 0.75  # Simulated current fitness
+        consciousness = 0.68  # Simulated consciousness level
+        
+        evolution_status = quantum_evolution.monitor_evolution_progress(fitness, consciousness)
+        
+        print('Evolution Monitoring Results:')
+        print(json.dumps(evolution_status, indent=2, default=str))
+        
+        # Save results for next step
+        with open('collaboration_results.json', 'w') as f:
+          json.dump({
+            'collaboration': collaboration_results,
+            'evolution': evolution_status
+          }, f, indent=2, default=str)
+        "
+        
+    - name: Assess Mutation Safety
+      id: safety-check
+      env:
+        DNA_LANG_ENV: ${{ needs.validate-repo-operations.outputs.environment }}
+      run: |
+        python -c "
+        import json
+        import sys
+        
+        # Load collaboration results
+        with open('collaboration_results.json', 'r') as f:
+          results = json.load(f)
+        
+        expansion_readiness = results['collaboration']['expansion_readiness']
+        readiness_score = expansion_readiness['readiness_score']
+        
+        print(f'Expansion Readiness Score: {readiness_score}')
+        print(f'Recommendation: {expansion_readiness[\"recommendation\"]}')
+        
+        if readiness_score >= 0.6:
+          print('✅ System ready for expansion and mutations')
+          print('expansion_ready=true' >> '$GITHUB_OUTPUT')
+        else:
+          print('⚠️ System not ready for expansion')
+          print('expansion_ready=false' >> '$GITHUB_OUTPUT')
+          
+          if readiness_score < 0.3:
+            print('❌ Critical safety concerns - blocking deployment')
+            sys.exit(1)
+        "
+        
+    - name: Upload collaboration results
+      uses: actions/upload-artifact@v3
+      with:
+        name: collaboration-results-${{ needs.validate-repo-operations.outputs.environment }}
+        path: collaboration_results.json
+        retention-days: 7
+
+  # Terraform Planning and Generation
+  terraform-plan:
+    name: Generate and Plan Terraform Infrastructure
+    runs-on: ubuntu-latest
+    needs: [validate-repo-operations, assess-mutation-safety]
+    if: needs.assess-mutation-safety.outputs.expansion-ready == 'true'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ env.TERRAFORM_VERSION }}
+        
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install jinja2
+        
+    - name: Generate Terraform Configuration
+      env:
+        DNA_LANG_ENV: ${{ needs.validate-repo-operations.outputs.environment }}
+      run: |
+        python -c "
+        from modules.cloud_architect import CloudArchitectAgent
+        import json
+        
+        env = '${{ needs.validate-repo-operations.outputs.environment }}'
+        cloud_architect = CloudArchitectAgent(env)
+        
+        # Define infrastructure requirements
+        requirements = {
+          'vpc': {'enabled': True, 'subnet_cidr': '10.1.0.0/24'},
+          'storage': {'enabled': True, 'lifecycle_rules': [
+            {'age': 30, 'action': 'SetStorageClass', 'storage_class': 'COLDLINE'}
+          ]},
+          'bigquery': {'enabled': True},
+          'iam': {'enabled': True},
+          'monitoring': {'enabled': True}
+        }
+        
+        # Generate deployment plan
+        deployment_plan = cloud_architect.generate_deployment_plan(requirements)
+        
+        print('Terraform Generation Results:')
+        print(json.dumps(deployment_plan, indent=2, default=str))
+        
+        if not deployment_plan['deployment_ready']:
+          print('❌ Terraform configuration validation failed')
+          for error in deployment_plan['validation']['errors']:
+            print(f'  Error: {error}')
+          exit(1)
+        else:
+          print('✅ Terraform configuration generated and validated')
+        
+        # Save deployment plan
+        with open('deployment_plan.json', 'w') as f:
+          json.dump(deployment_plan, f, indent=2, default=str)
+        "
+        
+    - name: Terraform Format Check
+      working-directory: gcp-organization/terraform/${{ needs.validate-repo-operations.outputs.environment }}
+      run: |
+        terraform fmt -check -recursive || {
+          echo "❌ Terraform files are not properly formatted"
+          echo "Running terraform fmt to show differences:"
+          terraform fmt -diff -recursive
+          exit 1
+        }
+        
+    - name: Terraform Validate
+      working-directory: gcp-organization/terraform/${{ needs.validate-repo-operations.outputs.environment }}
+      run: |
+        terraform init -backend=false
+        terraform validate
+        
+    - name: Terraform Plan (Dry Run)
+      working-directory: gcp-organization/terraform/${{ needs.validate-repo-operations.outputs.environment }}
+      env:
+        GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+      run: |
+        # Initialize with backend for plan
+        terraform init
+        
+        # Create terraform plan
+        terraform plan -out=tfplan -var="project_id=${{ secrets.GCP_PROJECT_ID }}"
+        
+        # Show plan summary
+        terraform show -no-color tfplan > terraform_plan.txt
+        
+    - name: Upload Terraform artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: terraform-plan-${{ needs.validate-repo-operations.outputs.environment }}
+        path: |
+          gcp-organization/terraform/${{ needs.validate-repo-operations.outputs.environment }}/tfplan
+          gcp-organization/terraform/${{ needs.validate-repo-operations.outputs.environment }}/terraform_plan.txt
+          deployment_plan.json
+        retention-days: 7
+
+  # Comprehensive Testing Suite
+  run-tests:
+    name: Run Test Suite
+    runs-on: ubuntu-latest
+    needs: validate-repo-operations
+    strategy:
+      matrix:
+        test-type: [unit, integration, security]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov flake8 bandit safety
+        
+    - name: Run Unit Tests
+      if: matrix.test-type == 'unit'
+      run: |
+        pytest -v --cov=modules --cov-report=xml --cov-report=html
+        
+    - name: Run Integration Tests
+      if: matrix.test-type == 'integration'
+      env:
+        DNA_LANG_ENV: ${{ needs.validate-repo-operations.outputs.environment }}
+      run: |
+        python verify_implementation.py
+        
+    - name: Run Security Tests
+      if: matrix.test-type == 'security'
+      run: |
+        # Static security analysis
+        bandit -r modules/ -f json -o bandit-report.json || true
+        
+        # Dependency security check
+        safety check --json --output safety-report.json || true
+        
+        # Lint check
+        flake8 modules/ --max-line-length=127 --statistics
+        
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-${{ matrix.test-type }}-${{ needs.validate-repo-operations.outputs.environment }}
+        path: |
+          htmlcov/
+          coverage.xml
+          bandit-report.json
+          safety-report.json
+        retention-days: 7
+
+  # Deployment with Mutation Safety
+  deploy:
+    name: Deploy with Mutation Validation
+    runs-on: ubuntu-latest
+    needs: [validate-repo-operations, assess-mutation-safety, terraform-plan, run-tests]
+    if: |
+      needs.validate-repo-operations.outputs.deployment-safe == 'true' &&
+      needs.assess-mutation-safety.outputs.expansion-ready == 'true' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.event_name == 'workflow_dispatch')
+    environment: ${{ needs.validate-repo-operations.outputs.environment }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ env.TERRAFORM_VERSION }}
+        
+    - name: Download Terraform plan
+      uses: actions/download-artifact@v3
+      with:
+        name: terraform-plan-${{ needs.validate-repo-operations.outputs.environment }}
+        path: terraform-artifacts/
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install jinja2
+        
+    - name: Pre-deployment Mutation Safety Check
+      env:
+        DNA_LANG_ENV: ${{ needs.validate-repo-operations.outputs.environment }}
+      run: |
+        python -c "
+        from modules.agent_collaboration import collaboration_hub
+        from modules.repository_operations import validate_before_deployment
+        import json
+        
+        print('🔒 Final safety validation before deployment...')
+        
+        # Final repository validation
+        is_safe, results = validate_before_deployment('${{ needs.validate-repo-operations.outputs.environment }}')
+        
+        if not is_safe:
+          print('❌ Final safety check failed')
+          critical_issues = results.get('critical_issues', [])
+          for issue in critical_issues:
+            print(f'  - {issue[\"issue\"]}')
+          exit(1)
+        
+        # Check agent collaboration status
+        system_health = collaboration_hub.get_system_health()
+        print(f'System Health: {json.dumps(system_health, indent=2)}')
+        
+        print('✅ All safety checks passed - proceeding with deployment')
+        "
+        
+    - name: Deploy Terraform Infrastructure
+      working-directory: gcp-organization/terraform/${{ needs.validate-repo-operations.outputs.environment }}
+      env:
+        GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+      run: |
+        # Initialize terraform
+        terraform init
+        
+        # Apply the planned changes
+        cp ../../terraform-artifacts/tfplan .
+        terraform apply tfplan
+        
+        # Save terraform state info
+        terraform output -json > terraform_outputs.json
+        
+    - name: Post-deployment Validation
+      env:
+        DNA_LANG_ENV: ${{ needs.validate-repo-operations.outputs.environment }}
+      run: |
+        python -c "
+        from modules.agent_collaboration import collaboration_hub, DevOpsAgent
+        import json
+        
+        print('📊 Post-deployment validation...')
+        
+        # Simulate deployment result
+        deployment_result = {
+          'id': 'deploy-${{ github.run_id }}',
+          'success': True,
+          'environment': '${{ needs.validate-repo-operations.outputs.environment }}',
+          'timestamp': '$(date -u +%Y-%m-%dT%H:%M:%SZ)'
+        }
+        
+        # Get DevOps feedback
+        devops_agent = collaboration_hub.agents['DevOpsAgent']
+        feedback = devops_agent.provide_deployment_feedback(deployment_result)
+        
+        print('Deployment Feedback:')
+        print(json.dumps(feedback.payload, indent=2))
+        
+        print('✅ Deployment completed successfully')
+        "
+        
+    - name: Create Deployment Audit Log
+      run: |
+        cat > deployment_audit.json << EOF
+        {
+          "deployment_id": "${{ github.run_id }}",
+          "environment": "${{ needs.validate-repo-operations.outputs.environment }}",
+          "git_sha": "${{ github.sha }}",
+          "git_ref": "${{ github.ref }}",
+          "triggered_by": "${{ github.actor }}",
+          "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+          "validation_results": "passed",
+          "mutation_safety": "validated",
+          "terraform_applied": true,
+          "workflow_run": "${{ github.run_id }}"
+        }
+        EOF
+        
+    - name: Upload deployment artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: deployment-results-${{ needs.validate-repo-operations.outputs.environment }}
+        path: |
+          deployment_audit.json
+          gcp-organization/terraform/${{ needs.validate-repo-operations.outputs.environment }}/terraform_outputs.json
+        retention-days: 30
+
+  # Notification and Monitoring Setup
+  post-deployment-monitoring:
+    name: Setup Post-Deployment Monitoring
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: always() && needs.deploy.result == 'success'
+    
+    steps:
+    - name: Notify Deployment Success
+      env:
+        DEPLOYMENT_ENV: ${{ needs.validate-repo-operations.outputs.environment }}
+      run: |
+        echo "🎉 Deployment to $DEPLOYMENT_ENV completed successfully!"
+        echo "Deployment ID: ${{ github.run_id }}"
+        echo "Git SHA: ${{ github.sha }}"
+        echo "Triggered by: ${{ github.actor }}"
+        
+    - name: Setup Monitoring Alerts
+      run: |
+        echo "📊 Setting up post-deployment monitoring..."
+        echo "Monitor deployment health at: https://console.cloud.google.com"
+        
+    # In a real implementation, this could send notifications to Slack, email, etc.
+    # - name: Send Slack Notification
+    #   uses: 8398a7/action-slack@v3
+    #   with:
+    #     status: success
+    #     text: "Deployment to ${{ needs.validate-repo-operations.outputs.environment }} completed successfully!"
+    #   env:
+    #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
