@@ -2,14 +2,20 @@
   "name": "genomic-twin-adaptive-insights",
   "version": "1.0.0",
   "description": "Genomic Twin platform with adaptive AI-driven insights and cloud infrastructure management",
-  "main": "app.py",
+  "main": "index.html",
   "scripts": {
     "start": "node cloud_architect_agent.js",
+    "build": "npm run lineage && npm run prepare-deployment",
+    "prepare-deployment": "cp index.html dist/index.html 2>/dev/null || mkdir -p dist && cp index.html dist/",
     "bio": "node biography_agent.js",
     "meta": "node meta_cognition_agent.js",
     "lineage": "node lineage_generator.js",
     "serve": "python3 -m http.server 8000",
-    "test": "echo \"Test functionality available\" && exit 0"
+    "dev": "python3 -m streamlit run app.py",
+    "install-python": "pip install -r requirements.txt",
+    "deploy": "npm run build",
+    "test": "echo \"Test functionality available\" && exit 0",
+    "vercel-build": "npm run build"
   },
   "dependencies": {
     "ws": "^8.14.2"
@@ -24,5 +30,9 @@
     "digital-twin"
   ],
   "author": "ENKI-420",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.x",
+    "npm": ">=8.x"
+  }
 }

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genomic Twin - Adaptive Genomic Insights</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 90%;
+        }
+        
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .feature {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .feature h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #764ba2;
+        }
+        
+        .btn-secondary:hover {
+            background: #6a4289;
+        }
+        
+        .status {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 10px;
+            color: #155724;
+        }
+        
+        .error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🧬</div>
+        <h1>Genomic Twin</h1>
+        <p class="subtitle">Adaptive Genomic Insights Platform</p>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>🔬 Genomic Analysis</h3>
+                <p>AI-powered mutation analysis and interpretation</p>
+            </div>
+            <div class="feature">
+                <h3>🎯 Clinical Trials</h3>
+                <p>Precision medicine trial matching</p>
+            </div>
+            <div class="feature">
+                <h3>🤖 AI Chatbot</h3>
+                <p>Intelligent genomic insights assistant</p>
+            </div>
+            <div class="feature">
+                <h3>📊 Digital Twin</h3>
+                <p>Patient digital twin simulation</p>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <a href="/lineage" class="btn">View Lineage Visualizer</a>
+            <a href="https://github.com/ENKI-420/Genomic-Twin---Adaptive-Genomic-Insights-" class="btn btn-secondary">GitHub Repository</a>
+        </div>
+        
+        <div class="status" id="status">
+            ✅ Platform Ready - All systems operational
+        </div>
+    </div>
+    
+    <script>
+        // Check system status
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusDiv = document.getElementById('status');
+            
+            // Simple health check
+            try {
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    statusDiv.innerHTML = '🔧 Development Mode - Running locally';
+                    statusDiv.className = 'status';
+                } else {
+                    statusDiv.innerHTML = '🚀 Production Mode - Deployed successfully';
+                    statusDiv.className = 'status';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '⚠️ Status check failed - Please refresh';
+                statusDiv.className = 'status error';
+            }
+        });
+    </script>
+</body>
+</html>

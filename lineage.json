@@ -1,0 +1,194 @@
+[
+  {
+    "id": "GenomicTwin-Genesis",
+    "generation": 1,
+    "parent": null,
+    "fitness": 0.8132367716144846,
+    "mutations": 1,
+    "timestamp": "2025-07-20T03:27:16.652Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-1",
+    "generation": 2,
+    "parent": "GenomicTwin-Genesis",
+    "fitness": 0.9944233594235801,
+    "mutations": 2,
+    "timestamp": "2025-07-08T22:57:23.091Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-2",
+    "generation": 2,
+    "parent": "GenomicTwin-Genesis",
+    "fitness": 0.8442891719962882,
+    "mutations": 2,
+    "timestamp": "2025-07-07T13:29:06.516Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-1-3-1",
+    "generation": 3,
+    "parent": "GenomicTwin-Genesis-2-1",
+    "fitness": 0.944108596506172,
+    "mutations": 2,
+    "timestamp": "2025-07-26T02:26:57.783Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-1-3-2",
+    "generation": 3,
+    "parent": "GenomicTwin-Genesis-2-1",
+    "fitness": 0.8783296301649672,
+    "mutations": 5,
+    "timestamp": "2025-06-29T22:46:31.133Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-1-3-3",
+    "generation": 3,
+    "parent": "GenomicTwin-Genesis-2-1",
+    "fitness": 0.7683305681240121,
+    "mutations": 3,
+    "timestamp": "2025-07-19T22:51:06.954Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-2-3-1",
+    "generation": 3,
+    "parent": "GenomicTwin-Genesis-2-2",
+    "fitness": 0.9422449401429921,
+    "mutations": 2,
+    "timestamp": "2025-07-15T01:25:45.668Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-2-3-2",
+    "generation": 3,
+    "parent": "GenomicTwin-Genesis-2-2",
+    "fitness": 0.9869868510925994,
+    "mutations": 1,
+    "timestamp": "2025-06-27T13:53:01.224Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-2-3-3",
+    "generation": 3,
+    "parent": "GenomicTwin-Genesis-2-2",
+    "fitness": 0.9972926579020387,
+    "mutations": 1,
+    "timestamp": "2025-06-29T13:43:55.380Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-1-3-1-4-1",
+    "generation": 4,
+    "parent": "GenomicTwin-Genesis-2-1-3-1",
+    "fitness": 0.9186728637192585,
+    "mutations": 5,
+    "timestamp": "2025-07-18T19:31:34.942Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-1-3-1-4-2",
+    "generation": 4,
+    "parent": "GenomicTwin-Genesis-2-1-3-1",
+    "fitness": 0.8345317961468631,
+    "mutations": 2,
+    "timestamp": "2025-07-07T08:46:06.301Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-1-3-1-4-3",
+    "generation": 4,
+    "parent": "GenomicTwin-Genesis-2-1-3-1",
+    "fitness": 0.8491930343250775,
+    "mutations": 3,
+    "timestamp": "2025-07-07T13:35:14.887Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-1-3-2-4-1",
+    "generation": 4,
+    "parent": "GenomicTwin-Genesis-2-1-3-2",
+    "fitness": 0.9529962261859479,
+    "mutations": 4,
+    "timestamp": "2025-07-15T04:44:58.230Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-1-3-2-4-2",
+    "generation": 4,
+    "parent": "GenomicTwin-Genesis-2-1-3-2",
+    "fitness": 0.8132851927071856,
+    "mutations": 3,
+    "timestamp": "2025-07-24T20:39:12.819Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-1-3-3-4-1",
+    "generation": 4,
+    "parent": "GenomicTwin-Genesis-2-1-3-3",
+    "fitness": 0.70357232623138,
+    "mutations": 2,
+    "timestamp": "2025-07-06T20:15:50.089Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-1-3-3-4-2",
+    "generation": 4,
+    "parent": "GenomicTwin-Genesis-2-1-3-3",
+    "fitness": 0.9940343878679714,
+    "mutations": 2,
+    "timestamp": "2025-07-07T16:24:30.282Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-1-3-3-4-3",
+    "generation": 4,
+    "parent": "GenomicTwin-Genesis-2-1-3-3",
+    "fitness": 0.8163549303931302,
+    "mutations": 3,
+    "timestamp": "2025-07-22T14:30:34.249Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-2-3-1-4-1",
+    "generation": 4,
+    "parent": "GenomicTwin-Genesis-2-2-3-1",
+    "fitness": 0.8635048909994211,
+    "mutations": 4,
+    "timestamp": "2025-07-17T05:28:08.530Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-2-3-1-4-2",
+    "generation": 4,
+    "parent": "GenomicTwin-Genesis-2-2-3-1",
+    "fitness": 0.8864816338301518,
+    "mutations": 1,
+    "timestamp": "2025-07-06T08:51:24.823Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-2-3-2-4-1",
+    "generation": 4,
+    "parent": "GenomicTwin-Genesis-2-2-3-2",
+    "fitness": 0.8082128996341907,
+    "mutations": 5,
+    "timestamp": "2025-07-08T17:29:47.279Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-2-3-2-4-2",
+    "generation": 4,
+    "parent": "GenomicTwin-Genesis-2-2-3-2",
+    "fitness": 0.9961157519016387,
+    "mutations": 5,
+    "timestamp": "2025-06-30T19:00:57.500Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-2-3-2-4-3",
+    "generation": 4,
+    "parent": "GenomicTwin-Genesis-2-2-3-2",
+    "fitness": 0.7712849629307954,
+    "mutations": 2,
+    "timestamp": "2025-07-15T01:12:58.053Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-2-3-3-4-1",
+    "generation": 4,
+    "parent": "GenomicTwin-Genesis-2-2-3-3",
+    "fitness": 0.7097153971979686,
+    "mutations": 5,
+    "timestamp": "2025-06-29T21:48:39.420Z"
+  },
+  {
+    "id": "GenomicTwin-Genesis-2-2-3-3-4-2",
+    "generation": 4,
+    "parent": "GenomicTwin-Genesis-2-2-3-3",
+    "fitness": 0.8676899446376701,
+    "mutations": 2,
+    "timestamp": "2025-07-24T01:06:25.892Z"
+  }
+]

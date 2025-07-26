@@ -163,7 +163,7 @@ cython_debug/
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  and can be added to the global gitignore or merged into this project.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
@@ -183,9 +183,22 @@ yarn-error.log*
 package-lock.json
 yarn.lock
 
-# Generated files
-generated.main.tf
+# Generated files that should be regenerated on each deployment
 organism_event_log.json
 biography.md
 meta_evolution_proposal.json
-lineage.json
+
+# Keep lineage.json as it's needed for the visualizer
+# lineage.json
+
+# Deployment artifacts (keep dist/ for static deployments)
+# dist/
+
+# Environment files
+.env.local
+.env.production
+.env.staging
+
+# OS files
+.DS_Store
+Thumbs.db
