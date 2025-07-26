@@ -1,0 +1,28 @@
+{
+  "name": "genomic-twin-adaptive-insights",
+  "version": "1.0.0",
+  "description": "Genomic Twin platform with adaptive AI-driven insights and cloud infrastructure management",
+  "main": "app.py",
+  "scripts": {
+    "start": "node cloud_architect_agent.js",
+    "bio": "node biography_agent.js",
+    "meta": "node meta_cognition_agent.js",
+    "lineage": "node lineage_generator.js",
+    "serve": "python3 -m http.server 8000",
+    "test": "echo \"Test functionality available\" && exit 0"
+  },
+  "dependencies": {
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "genomics",
+    "ai",
+    "terraform",
+    "cloud",
+    "evolution",
+    "digital-twin"
+  ],
+  "author": "ENKI-420",
+  "license": "MIT"
+}

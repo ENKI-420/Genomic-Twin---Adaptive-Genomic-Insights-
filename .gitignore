@@ -174,3 +174,18 @@ cython_debug/
 dna-lang-evolution-test-*/
 *.tmp
 .evolution_temp/
+
+# Node.js artifacts
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Generated files
+generated.main.tf
+organism_event_log.json
+biography.md
+meta_evolution_proposal.json
+lineage.json
