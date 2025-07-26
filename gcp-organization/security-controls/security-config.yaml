@@ -1,0 +1,94 @@
+# Security Controls for DNA-Lang Platform
+# Environment-specific security configurations
+
+production:
+  network_security:
+    # VPC Configuration
+    vpc_flow_logs: enabled
+    private_google_access: enabled
+    
+    # Firewall Rules
+    default_firewall_action: "DENY"
+    allowed_ports:
+      - "443"  # HTTPS only
+    source_ranges:
+      - "10.0.0.0/8"  # Internal networks only
+      
+    # Load Balancer Security
+    ssl_policy: "MODERN"
+    ssl_certificates: "MANAGED"
+    
+  data_security:
+    # Encryption
+    encryption_at_rest: "CUSTOMER_MANAGED"
+    encryption_in_transit: "TLS_1_3"
+    key_rotation_days: 90
+    
+    # Data Loss Prevention
+    dlp_enabled: true
+    sensitive_data_detection: true
+    genomic_data_masking: true
+    
+  access_security:
+    # Authentication
+    mfa_enforcement: "STRICT"
+    session_timeout_minutes: 60
+    
+    # Authorization
+    rbac_enabled: true
+    least_privilege: true
+    access_reviews_quarterly: true
+    
+  monitoring_security:
+    # Audit Logging
+    cloud_audit_logs: "ALL"
+    data_access_logs: true
+    
+    # Security Monitoring
+    security_command_center: enabled
+    vulnerability_scanning: enabled
+    malware_detection: enabled
+
+staging:
+  network_security:
+    vpc_flow_logs: disabled
+    private_google_access: enabled
+    default_firewall_action: "ALLOW"
+    allowed_ports:
+      - "80"
+      - "443"
+      - "8080"
+    
+  data_security:
+    encryption_at_rest: "GOOGLE_DEFAULT"
+    encryption_in_transit: "TLS_1_2"
+    key_rotation_days: 180
+    dlp_enabled: false
+    
+  access_security:
+    mfa_enforcement: "OPTIONAL"
+    session_timeout_minutes: 120
+    rbac_enabled: true
+    
+  monitoring_security:
+    cloud_audit_logs: "ADMIN_READ,DATA_WRITE"
+    security_command_center: enabled
+
+development:
+  network_security:
+    vpc_flow_logs: disabled
+    private_google_access: disabled
+    default_firewall_action: "ALLOW"
+    
+  data_security:
+    encryption_at_rest: "GOOGLE_DEFAULT"
+    encryption_in_transit: "TLS_1_2"
+    synthetic_data_only: true
+    
+  access_security:
+    mfa_enforcement: "DISABLED"
+    session_timeout_minutes: 240
+    
+  monitoring_security:
+    cloud_audit_logs: "ADMIN_READ"
+    security_command_center: disabled

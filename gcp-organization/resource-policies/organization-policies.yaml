@@ -1,0 +1,63 @@
+# GCP Organization Policies for DNA-Lang Platform
+# Enforce resource constraints and security policies across all environments
+
+# Restrict VM External IP Assignment
+- constraint: "compute.vmExternalIpAccess"
+  listPolicy:
+    allowedValues: []
+  environment: "production"
+
+# Restrict Public IP Access for Cloud SQL
+- constraint: "sql.restrictPublicIp"
+  booleanPolicy:
+    enforced: true
+  environment: "production"
+
+# Require OS Login
+- constraint: "compute.requireOsLogin"
+  booleanPolicy:
+    enforced: true
+  environment: "production"
+
+# Restrict VPC Peering
+- constraint: "compute.restrictVpcPeering"
+  listPolicy:
+    allowedValues:
+      - "projects/dna-lang-prod"
+  environment: "production"
+
+# Define allowed VM instance types
+- constraint: "compute.vmCanIpForward"
+  booleanPolicy:
+    enforced: false
+  environment: "production"
+
+# Restrict resource locations to specific regions
+- constraint: "gcp.resourceLocations"
+  listPolicy:
+    allowedValues:
+      - "us-central1"
+      - "us-east1"
+  environment: "all"
+
+# Require specific labels on resources
+- constraint: "gcp.resourceManagerTags"
+  listPolicy:
+    allowedValues:
+      - "environment"
+      - "project"
+      - "owner"
+      - "cost-center"
+  environment: "all"
+
+# Restrict service account key creation
+- constraint: "iam.disableServiceAccountKeyCreation"
+  booleanPolicy:
+    enforced: true
+  environment: "production"
+
+# Restrict cross-project service account usage
+- constraint: "iam.disableServiceAccountKeyUpload"
+  booleanPolicy:
+    enforced: true
+  environment: "production"
