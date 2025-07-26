@@ -1,0 +1,36 @@
+# Cloud Build Trigger Configuration for DNA-Lang Genomic Twin
+# Import this configuration in Google Cloud Console > Cloud Build > Triggers
+
+name: "dnalang-genomic-twin-deploy"
+description: "Deploy DNA-Lang Genomic Twin to Cloud Run with Terraform"
+
+github:
+  owner: "ENKI-420"
+  name: "Genomic-Twin---Adaptive-Genomic-Insights-"
+  push:
+    branch: "^main$"
+
+substitutions:
+  _REGION: "us-central1"
+  _REPO_NAME: "dnalang-repo"
+
+filename: "cloudbuild.yaml"
+
+# Manual trigger - uncomment for manual deployment only
+# disabled: true
+
+# Include all files in the build
+includedFiles:
+  - "**"
+
+ignoredFiles:
+  - ".git/**"
+  - ".github/**"
+  - "README.md"
+  - "docs/**"
+
+# Build configuration
+build:
+  timeout: "1800s"
+  machineType: "E2_HIGHCPU_8"
+  logging: "CLOUD_LOGGING_ONLY"

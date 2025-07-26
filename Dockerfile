@@ -21,8 +21,7 @@ RUN pip install --no-cache-dir --trusted-host pypi.org --trusted-host pypi.pytho
     streamlit \
     plotly \
     psycopg2-binary \
-    google-cloud-pubsub \
-    google-cloud-sql-connector
+    google-cloud-pubsub
 
 # Copy application code
 COPY . .
