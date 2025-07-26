@@ -106,27 +106,35 @@ def integrate_trials_into_report(ai_report, trials):
     
     return f"{ai_report}\n\n{trial_section}"
 
-# Streamlit UI Additions
-if selected_option == "Genomic AI Analysis":
-    # ... previous UI code ...
+def clinical_trials_ui():
+    """Streamlit UI for clinical trials analysis"""
+    import streamlit as st
     
+    # This function can be called when needed in a Streamlit context
     with st.expander("🌍 Clinical Trial Search Parameters"):
         cols = st.columns(2)
         with cols[0]:
             location = st.text_input("Search Radius (City, State)", "New York, NY")
         with cols[1]:
             trial_phase = st.multiselect("Trial Phase", ["I", "II", "III", "IV"], ["II", "III"])
-            
-    # ... analysis button ...
     
-    if analysis:
-        st.subheader("📊 Genomic Insights Report")
-        st.markdown(analysis)
+    return location, trial_phase
+
+# Main API function for the module interface
+def find_trials(mutations):
+    """Find clinical trials for given mutations"""
+    if isinstance(mutations, str):
+        mutations = [mutations]
+    
+    try:
+        conditions = ["cancer", "oncology"]  # Default conditions
+        biomarkers = [(mut, "mutation") for mut in mutations]
         
-        # Interactive trial explorer
-        st.subheader("🗺️ Trial Map Visualization")
-        trials = parse_trials_from_report(analysis)  # Implement parsing logic
-        if trials:
-            plot_trial_map(trials)
-        else:
-            st.info("No trial geographic data available")
+        trials = fetch_clinical_trials(conditions, biomarkers)
+        return trials
+    except Exception as e:
+        return {
+            "error": str(e),
+            "message": "Failed to fetch clinical trials",
+            "trials": []
+        }

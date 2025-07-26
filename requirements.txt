@@ -13,3 +13,7 @@ fpdf
 python-docx
 streamlit
 pyyaml
+google-cloud-bigquery
+tensorflow
+retrying
+numpy

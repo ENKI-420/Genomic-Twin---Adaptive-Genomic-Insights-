@@ -82,6 +82,66 @@ class NanoparticleDeliverySimulator:
         plt.tight_layout()
         plt.show()
 
+# Convenience function for module interface
+def simulate_delivery(dose: float = 100, elimination_rate: float = 0.15, 
+                     distribution: Dict[str, float] = None, size: float = 80, 
+                     charge: float = -15, hours: int = 24) -> Dict:
+    """
+    Simulate nanoparticle delivery and distribution.
+    
+    Args:
+        dose (float): Dose in mg/kg
+        elimination_rate (float): Elimination rate in 1/hours
+        distribution (dict): Organ distribution percentages
+        size (float): Nanoparticle size in nm
+        charge (float): Surface charge in mV
+        hours (int): Simulation duration in hours
+    
+    Returns:
+        dict: Simulation results including PK and distribution data
+    """
+    if distribution is None:
+        distribution = {'Liver': 50, 'Kidney': 30, 'Lung': 20}
+    
+    try:
+        simulator = NanoparticleDeliverySimulator(
+            dose=dose,
+            elimination_rate=elimination_rate,
+            distribution=distribution,
+            size=size,
+            charge=charge
+        )
+        
+        pk_results = simulator.simulate_pk(hours=hours)
+        dist_results = simulator.simulate_distribution()
+        
+        return {
+            'pharmacokinetics': pk_results.to_dict('records'),
+            'distribution': dist_results.to_dict('records'),
+            'parameters': {
+                'dose': dose,
+                'elimination_rate': elimination_rate,
+                'size': size,
+                'charge': charge,
+                'hours': hours
+            }
+        }
+    except Exception as e:
+        # Return mock results on error
+        return {
+            'pharmacokinetics': [{'hour': i, 'concentration': max(0, dose * np.exp(-elimination_rate * i))} 
+                                for i in range(hours + 1)],
+            'distribution': [{'organ': k, 'percentage': v} for k, v in distribution.items()],
+            'parameters': {
+                'dose': dose,
+                'elimination_rate': elimination_rate,
+                'size': size,
+                'charge': charge,
+                'hours': hours
+            },
+            'error': str(e)
+        }
+
 # Example usage
 if __name__ == "__main__":
     params = {

@@ -106,5 +106,10 @@ def main():
     </div>
     """, unsafe_allow_html=True)
 
+# Alias for module interface compatibility
+def fetch_beaker_data(patient_id, auth_token=None):
+    """Alias for fetch_beaker_report to maintain compatibility with module interface"""
+    return fetch_beaker_report(patient_id, auth_token)
+
 if __name__ == '__main__':
     main()
