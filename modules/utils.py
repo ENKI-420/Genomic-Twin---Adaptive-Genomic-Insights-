@@ -19,7 +19,10 @@ def fetch_patient_data(patient_id, token):
         "gender": "Unknown"
     }
 
-def ai_chat_response(user_query):
+def ai_chat_response(user_query, patient_id=None, token=None):
     """Mock AI chat response for demonstration"""
-    # In production, this would use actual AI/ML models
-    return f"AI Response to: {user_query}. This is a mock response for demonstration purposes."
+    # In production, this would use actual AI/ML models and patient context
+    context = ""
+    if patient_id and token:
+        context = f" [Patient Context: {patient_id}]"
+    return f"AI Response to: {user_query}{context}. This is a mock response for demonstration purposes."

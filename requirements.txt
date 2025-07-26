@@ -13,3 +13,9 @@ fpdf
 python-docx
 streamlit
 pyyaml
+google-cloud-bigquery
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+retrying
+tensorflow

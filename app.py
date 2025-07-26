@@ -5,6 +5,7 @@ from modules.beaker_report import fetch_beaker_data
 from modules.clinical_trials import find_trials
 from modules.utils import authenticate_epic, fetch_patient_data, ai_chat_response
 from modules.digital_twin import generate_digital_twin
+from modules.gcloud_auth import gcloud_login, is_authenticated as gcloud_is_authenticated, setup_authentication_instructions
 
 # Load environment variables
 load_dotenv()
@@ -14,7 +15,7 @@ APP_VERSION = "v3.2"
 
 # Streamlit UI
 st.title("🚀 Agile Oncology AI Platform")
-st.caption("Precision Medicine Platform v3.2")
+st.caption(f"Precision Medicine Platform {APP_VERSION}")
 
 # Sidebar UI
 with st.sidebar:
@@ -31,6 +32,33 @@ with st.sidebar:
             st.success("Authenticated with Epic!")
         else:
             st.error("Authentication failed.")
+    
+    st.subheader("☁️ Google Cloud Authentication")
+    gcloud_status = gcloud_is_authenticated()
+    
+    if gcloud_status:
+        st.success("✅ Google Cloud authenticated")
+    else:
+        st.warning("⚠️ Google Cloud not authenticated")
+        
+        auth_method = st.selectbox("Authentication Method", 
+                                   ["Default (gcloud CLI)", "Service Account", "Setup Instructions"])
+        
+        if auth_method == "Setup Instructions":
+            if st.button("Show Setup Instructions"):
+                instructions = setup_authentication_instructions()
+                st.text_area("Setup Instructions", instructions, height=200)
+        else:
+            if st.button("Authenticate Google Cloud"):
+                method = 'default' if auth_method == "Default (gcloud CLI)" else 'service_account'
+                if gcloud_login(method):
+                    st.success("Google Cloud authentication successful!")
+                    st.rerun()
+                else:
+                    st.error("Google Cloud authentication failed. Check the setup instructions.")
+    
+    # Show authentication status
+    st.caption(f"GCloud Status: {'✅' if gcloud_status else '❌'}")
 
 # Main UI logic
 if 'token' in st.session_state:
@@ -41,36 +69,41 @@ if 'token' in st.session_state:
         report_format = st.selectbox("Report Format", ["PDF", "DOCX"])
 
         if uploaded_file and st.button("Analyze Genomics 🚀"):
-            mutations_df = analyze_genomic_data(uploaded_file)
-            patient_data = fetch_patient_data(patient_id, st.session_state['token'])
-            ai_insights = ai_genomic_interpretation(mutations_df)
-            digital_twin = generate_digital_twin(patient_data)
+            with st.spinner("Analyzing genomic data..."):
+                mutations_df = analyze_genomic_data(uploaded_file)
+                patient_data = fetch_patient_data(patient_id, st.session_state['token'])
+                ai_insights = ai_genomic_interpretation(mutations_df)
+                digital_twin = generate_digital_twin(patient_data)
 
-            st.dataframe(mutations_df)
-            plot_mutation_data(mutations_df)
-            report_path = generate_reports(mutations_df, patient_data, insights=ai_insights, format_type=report_format)
+                st.dataframe(mutations_df)
+                plot_mutation_data(mutations_df)
+                report_path = generate_reports(mutations_df, patient_data, insights=ai_insights, format_type=report_format)
 
-            with open(report_path, "rb") as file:
-                st.download_button("Download Report", file_name=report_path, data=file, mime="application/octet-stream")
-            st.success("Reports Generated Successfully!")
+                with open(report_path, "rb") as file:
+                    st.download_button("Download Report", file_name=report_path, data=file, mime="application/octet-stream")
+                st.success("Reports Generated Successfully!")
 
     elif analysis_mode == "Beaker Reports":
         if st.button("Fetch Beaker Reports"):
-            reports = fetch_beaker_data(patient_id, st.session_state['token'])
-            st.dataframe(reports)
+            with st.spinner("Fetching Beaker reports..."):
+                reports = fetch_beaker_data(patient_id, st.session_state['token'])
+                st.dataframe(reports)
 
     elif analysis_mode == "Clinical Trial Matching":
         mutations_input = st.text_input("Enter mutations (comma-separated)")
         if st.button("Find Matching Trials"):
-            mutations = mutations_input.split(',')
-            trials = find_trials(mutations)
-            st.json(trials)
+            with st.spinner("Searching for clinical trials..."):
+                mutations = mutations_input.split(',')
+                trials = find_trials(mutations)
+                st.json(trials)
 
     elif analysis_mode == "AI Chatbot":
         user_query = st.text_area("Ask Agile Oncology AI")
         if st.button("Get AI Response"):
-            response = ai_chat_response(user_query)
-            st.write(response)
+            with st.spinner("Thinking..."):
+                # Use the imported AI chat function
+                response = ai_chat_response(user_query, patient_id, st.session_state.get('token'))
+                st.write(response)
 
 else:
     st.info("Please authenticate via the sidebar to start using the platform.")
