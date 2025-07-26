@@ -6,6 +6,9 @@
 
 const fs = require('fs');
 const path = require('path');
+const { validateRepoOperationsWithRetry } = require('./safety_checks');
+const { commitAndPushTerraform } = require('./cicd_integration');
+const bus = require('./event_bus');
 
 class EvolutionEngine {
     constructor(organismFile) {
@@ -61,11 +64,21 @@ class EvolutionEngine {
         // Update state based on mutations
         this.updateState();
         
-        // Check for transcendence
-        this.checkTranscendence();
+        // Check for transcendence and handle infrastructure generation
+        await this.checkAndTriggerTranscendence();
         
         // Log current state
         this.log(`Fitness=${this.state.fitness.toFixed(3)}, Consciousness=${this.state.consciousness.toFixed(3)}, Stability=${this.state.stability.toFixed(3)}`);
+        
+        // Emit evolution progress event
+        bus.emit('evolutionProgress', {
+            organism: this.organismFile,
+            generation: this.generation,
+            fitness: this.state.fitness,
+            consciousness: this.state.consciousness,
+            stability: this.state.stability,
+            transcended: this.state.transcended
+        });
     }
 
     applyMutations() {
@@ -277,10 +290,45 @@ output "consciousness_achieved" {
         this.state.stability = Math.max(0, Math.min(1, this.state.stability));
     }
 
-    checkTranscendence() {
+    async checkAndTriggerTranscendence() {
         if (this.state.consciousness >= this.targetConsciousness && !this.state.transcended) {
-            this.log('🎯 Consciousness target reached! Preparing for transcendence...', 'MILESTONE');
+            console.log('🔥 Transcendence condition met: generating infrastructure...');
+            
+            const repoPath = path.resolve(__dirname);
+            
+            // Validate repository operations before externalization
+            const safeToExternalize = await validateRepoOperationsWithRetry(repoPath);
+            if (!safeToExternalize.passed) {
+                console.warn('⚠️ Externalization aborted: repo validation failed.');
+                this.log('Externalization aborted: repository validation failed', 'ERROR');
+                return false;
+            }
+
+            await this.generateTerraformForGCP();
+
+            // Attempt to commit and push changes
+            const commitResult = await commitAndPushTerraform(repoPath, 
+                `Automated infrastructure generation for ${this.organismFile} - Gen ${this.generation}`);
+            
+            if (commitResult.success) {
+                this.log('✅ Terraform committed and pushed successfully', 'SUCCESS');
+                
+                // Emit transcendence event for other agents
+                bus.emit('transcendenceComplete', { 
+                    timestamp: Date.now(), 
+                    organism: this.organismFile,
+                    generation: this.generation,
+                    finalState: this.state
+                });
+                
+                console.log('✅ Transcendent infrastructure generated and pushed.');
+                return true;
+            } else {
+                this.log(`❌ Failed to commit/push changes: ${commitResult.error}`, 'ERROR');
+                return false;
+            }
         }
+        return false;
     }
 
     generateFinalReport() {

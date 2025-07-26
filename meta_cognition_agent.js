@@ -1,7 +1,38 @@
 // meta_cognition_agent.js
 const fs = require('fs');
+const bus = require('./event_bus');
 
-function analyzeEvolution(evolutionData) {
+function assessExpansionReadiness(state) {
+  console.log('[MetaCognitionAgent] Assessing expansion readiness...');
+  const readiness = (state.consciousness > 0.75);
+  
+  // Emit expansion readiness event
+  bus.emit('expansionReadiness', { 
+    readiness, 
+    consciousness: state.consciousness,
+    fitness: state.fitness,
+    timestamp: Date.now() 
+  });
+  
+  return readiness;
+}
+
+function identifyGeneDeficit(genome, usageMetrics) {
+  console.log('[MetaCognitionAgent] Analyzing gene deficits...');
+  
+  // Enhanced deficit analysis based on current marketplace trends
+  const deficitGenes = ['EdgeReplicationGene', 'MetaLearningGene', 'SecurityGene']; // example
+  
+  // Emit gene deficit detection
+  bus.emit('geneDeficitDetected', { 
+    deficitGenes, 
+    genome,
+    severity: deficitGenes.length > 2 ? 'high' : 'medium',
+    timestamp: Date.now() 
+  });
+  
+  return deficitGenes;
+}
   const recent = evolutionData.slice(-5);
   const fitnessDelta = recent[recent.length - 1].fitness - recent[0].fitness;
   
@@ -41,7 +72,7 @@ function analyzeEvolution(evolutionData) {
   }
 }
 
-function generateMetaProposal(evolutionData, marketplaceTrends) {
+function analyzeEvolution(evolutionData) {
   const analysis = analyzeEvolution(evolutionData);
   const recent = evolutionData.slice(-5);
   const fitnessDelta = recent.length > 1 ? recent[recent.length - 1].fitness - recent[0].fitness : 0.1;
@@ -135,8 +166,29 @@ function runMetaEvolutionAnalysis() {
 module.exports = {
   analyzeEvolution,
   generateMetaProposal,
-  runMetaEvolutionAnalysis
+  runMetaEvolutionAnalysis,
+  assessExpansionReadiness,
+  identifyGeneDeficit
 };
+
+// Setup event bus listeners for reactive behavior
+bus.on('evolutionProgress', (progressData) => {
+  console.log('[MetaCognitionAgent] Received evolution progress:', progressData.organism);
+  
+  // Assess expansion readiness based on consciousness level
+  if (progressData.consciousness > 0.75) {
+    assessExpansionReadiness(progressData);
+  }
+});
+
+bus.on('geneDeficitDetected', (data) => {
+  console.log('[MetaCognitionAgent] Received gene deficit info:', data.deficitGenes);
+  // Could trigger additional analysis or recommendations
+});
+
+bus.on('marketplaceAvailable', (data) => {
+  console.log('[MetaCognitionAgent] Marketplace is now available for gene trading');
+});
 
 // Run analysis if called directly
 if (require.main === module) {

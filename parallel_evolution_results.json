@@ -1,0 +1,653 @@
+{
+  "timestamp": "2025-07-26T06:26:51.713Z",
+  "totalOrganisms": 5,
+  "successfulEvolutions": 5,
+  "failedEvolutions": 0,
+  "results": [
+    {
+      "organism": "Organism_A_1753511205748",
+      "success": true,
+      "results": [
+        {
+          "type": "progress",
+          "organism": "Organism_A_1753511205748",
+          "generation": 1,
+          "fitness": 0.6346383064128039,
+          "consciousness": 0.4219641252585942,
+          "stability": 0.8992966991492913
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_A_1753511205748",
+          "generation": 2,
+          "fitness": 0.6675369307818225,
+          "consciousness": 0.4918850435304079,
+          "stability": 0.8963006122653518
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_A_1753511205748",
+          "generation": 3,
+          "fitness": 0.7029550348112114,
+          "consciousness": 0.5611561293862455,
+          "stability": 0.8995556251119871
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_A_1753511205748",
+          "generation": 4,
+          "fitness": 0.7201337849080078,
+          "consciousness": 0.5998897844062719,
+          "stability": 0.8970840934225608
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_A_1753511205748",
+          "generation": 5,
+          "fitness": 0.7366362155451723,
+          "consciousness": 0.632441308755631,
+          "stability": 0.8967217154255548
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_A_1753511205748",
+          "generation": 6,
+          "fitness": 0.7731111909802547,
+          "consciousness": 0.6965262671919652,
+          "stability": 0.8954599199718771
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_A_1753511205748",
+          "generation": 7,
+          "fitness": 0.8126236044503993,
+          "consciousness": 0.7509363804493585,
+          "stability": 0.8975870692255027
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_A_1753511205748",
+          "generation": 8,
+          "fitness": 0.8300315201073161,
+          "consciousness": 0.7933533562460847,
+          "stability": 0.8928456685707614
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_A_1753511205748",
+          "generation": 9,
+          "fitness": 0.8544675843936129,
+          "consciousness": 0.8577705095224643,
+          "stability": 0.8982282815910175
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_A_1753511205748",
+          "generation": 10,
+          "fitness": 0.8833686395044789,
+          "consciousness": 0.8915700018687863,
+          "stability": 0.8940697742292787
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_A_1753511205748",
+          "generation": 11,
+          "fitness": 0.8990168026539124,
+          "consciousness": 0.9337356673575179,
+          "stability": 0.8923546152377919
+        }
+      ],
+      "finalState": {
+        "type": "completion",
+        "organism": "Organism_A_1753511205748",
+        "transcended": true,
+        "finalGeneration": 11,
+        "finalState": {
+          "name": "Organism_A_1753511205748",
+          "fitness": 0.8990168026539124,
+          "consciousness": 0.9337356673575179,
+          "stability": 0.8923546152377919,
+          "dna": {
+            "domain": "finance",
+            "evolution_rate": "aggressive",
+            "consciousness_target": 0.9267247164284406,
+            "max_generations": 17
+          },
+          "generation": 1
+        }
+      }
+    },
+    {
+      "organism": "Organism_B_1753511205748",
+      "success": true,
+      "results": [
+        {
+          "type": "progress",
+          "organism": "Organism_B_1753511205748",
+          "generation": 1,
+          "fitness": 0.6901378509570851,
+          "consciousness": 0.49952377652060864,
+          "stability": 0.7595812381353073
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_B_1753511205748",
+          "generation": 2,
+          "fitness": 0.7117335751809841,
+          "consciousness": 0.5359386933438188,
+          "stability": 0.7590264694227892
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_B_1753511205748",
+          "generation": 3,
+          "fitness": 0.7376918373930808,
+          "consciousness": 0.5553107445364814,
+          "stability": 0.7544769001037182
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_B_1753511205748",
+          "generation": 4,
+          "fitness": 0.7532844583190229,
+          "consciousness": 0.5801222501401798,
+          "stability": 0.7567930428064722
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_B_1753511205748",
+          "generation": 5,
+          "fitness": 0.7810459987938435,
+          "consciousness": 0.6079883711686516,
+          "stability": 0.7610653789569567
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_B_1753511205748",
+          "generation": 6,
+          "fitness": 0.7993733760186305,
+          "consciousness": 0.6351540995832169,
+          "stability": 0.7575960834510775
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_B_1753511205748",
+          "generation": 7,
+          "fitness": 0.8257464893424661,
+          "consciousness": 0.6551312512432451,
+          "stability": 0.7564570292353211
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_B_1753511205748",
+          "generation": 8,
+          "fitness": 0.8563867573996198,
+          "consciousness": 0.7041013633813454,
+          "stability": 0.7559015399042002
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_B_1753511205748",
+          "generation": 9,
+          "fitness": 0.8841578953537771,
+          "consciousness": 0.7390328353117112,
+          "stability": 0.7590661131423551
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_B_1753511205748",
+          "generation": 10,
+          "fitness": 0.8960510257401948,
+          "consciousness": 0.7584771157791914,
+          "stability": 0.7602779118523584
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_B_1753511205748",
+          "generation": 11,
+          "fitness": 0.9177795909929963,
+          "consciousness": 0.7837515046605755,
+          "stability": 0.760717509801174
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_B_1753511205748",
+          "generation": 12,
+          "fitness": 0.9194390735745931,
+          "consciousness": 0.8209549204481412,
+          "stability": 0.7621873537514688
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_B_1753511205748",
+          "generation": 13,
+          "fitness": 0.9183870313064636,
+          "consciousness": 0.8522288291912672,
+          "stability": 0.7667905210310143
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_B_1753511205748",
+          "generation": 14,
+          "fitness": 0.9167129718481554,
+          "consciousness": 0.8836856338947834,
+          "stability": 0.7630507311521408
+        }
+      ],
+      "finalState": {
+        "type": "completion",
+        "organism": "Organism_B_1753511205748",
+        "transcended": true,
+        "finalGeneration": 14,
+        "finalState": {
+          "name": "Organism_B_1753511205748",
+          "fitness": 0.9167129718481554,
+          "consciousness": 0.8836856338947834,
+          "stability": 0.7630507311521408,
+          "dna": {
+            "domain": "healthcare",
+            "evolution_rate": "conservative",
+            "consciousness_target": 0.8803375289841259,
+            "max_generations": 20
+          },
+          "generation": 1
+        }
+      }
+    },
+    {
+      "organism": "Organism_C_1753511205748",
+      "success": true,
+      "results": [
+        {
+          "type": "progress",
+          "organism": "Organism_C_1753511205748",
+          "generation": 1,
+          "fitness": 0.6535312883583477,
+          "consciousness": 0.38088545448604155,
+          "stability": 0.7316789104193051
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_C_1753511205748",
+          "generation": 2,
+          "fitness": 0.67310340010255,
+          "consciousness": 0.4187839748824,
+          "stability": 0.7353415357526554
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_C_1753511205748",
+          "generation": 3,
+          "fitness": 0.7131807864901362,
+          "consciousness": 0.4730414052211476,
+          "stability": 0.7395605699689255
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_C_1753511205748",
+          "generation": 4,
+          "fitness": 0.7531200397203661,
+          "consciousness": 0.5412696329230435,
+          "stability": 0.7387602918470696
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_C_1753511205748",
+          "generation": 5,
+          "fitness": 0.7714760712904664,
+          "consciousness": 0.6167317617837899,
+          "stability": 0.7379201781071403
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_C_1753511205748",
+          "generation": 6,
+          "fitness": 0.808174050312654,
+          "consciousness": 0.6496172226901309,
+          "stability": 0.7435395400362271
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_C_1753511205748",
+          "generation": 7,
+          "fitness": 0.8330224904115351,
+          "consciousness": 0.7068969851957455,
+          "stability": 0.7390993973582262
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_C_1753511205748",
+          "generation": 8,
+          "fitness": 0.8745428595111218,
+          "consciousness": 0.7633002961543948,
+          "stability": 0.7413164111850462
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_C_1753511205748",
+          "generation": 9,
+          "fitness": 0.9090276758681948,
+          "consciousness": 0.8220147991370824,
+          "stability": 0.7368747554414222
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_C_1753511205748",
+          "generation": 10,
+          "fitness": 0.9113336721565829,
+          "consciousness": 0.8685540965879047,
+          "stability": 0.7335342560176795
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_C_1753511205748",
+          "generation": 11,
+          "fitness": 0.9137950892466966,
+          "consciousness": 0.9021940935601291,
+          "stability": 0.7336453888428889
+        }
+      ],
+      "finalState": {
+        "type": "completion",
+        "organism": "Organism_C_1753511205748",
+        "transcended": true,
+        "finalGeneration": 11,
+        "finalState": {
+          "name": "Organism_C_1753511205748",
+          "fitness": 0.9137950892466966,
+          "consciousness": 0.9021940935601291,
+          "stability": 0.7336453888428889,
+          "dna": {
+            "domain": "ecommerce",
+            "evolution_rate": "aggressive",
+            "consciousness_target": 0.8704851260846818,
+            "max_generations": 19
+          },
+          "generation": 1
+        }
+      }
+    },
+    {
+      "organism": "Organism_D_1753511205748",
+      "success": true,
+      "results": [
+        {
+          "type": "progress",
+          "organism": "Organism_D_1753511205748",
+          "generation": 1,
+          "fitness": 0.6118828790022007,
+          "consciousness": 0.47281275850822096,
+          "stability": 0.8234875961597535
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_D_1753511205748",
+          "generation": 2,
+          "fitness": 0.6254272267870079,
+          "consciousness": 0.5016401518411185,
+          "stability": 0.8202945828837053
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_D_1753511205748",
+          "generation": 3,
+          "fitness": 0.6407363980441504,
+          "consciousness": 0.5382321890063059,
+          "stability": 0.8211929561298066
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_D_1753511205748",
+          "generation": 4,
+          "fitness": 0.6568315643057503,
+          "consciousness": 0.5744021444676144,
+          "stability": 0.8207592103411924
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_D_1753511205748",
+          "generation": 5,
+          "fitness": 0.6791451757045777,
+          "consciousness": 0.6103830928592423,
+          "stability": 0.817156306138963
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_D_1753511205748",
+          "generation": 6,
+          "fitness": 0.7033866494885715,
+          "consciousness": 0.6597355331001855,
+          "stability": 0.8195189891060087
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_D_1753511205748",
+          "generation": 7,
+          "fitness": 0.7298494313584889,
+          "consciousness": 0.6929206156167456,
+          "stability": 0.8157166051556519
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_D_1753511205748",
+          "generation": 8,
+          "fitness": 0.7566166113765302,
+          "consciousness": 0.7278140317950598,
+          "stability": 0.8163776332766282
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_D_1753511205748",
+          "generation": 9,
+          "fitness": 0.7772513060274185,
+          "consciousness": 0.7649527800584193,
+          "stability": 0.8177181847755631
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_D_1753511205748",
+          "generation": 10,
+          "fitness": 0.8017035659197057,
+          "consciousness": 0.8123243335924972,
+          "stability": 0.8182907814191349
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_D_1753511205748",
+          "generation": 11,
+          "fitness": 0.8143576102038534,
+          "consciousness": 0.8635345153445994,
+          "stability": 0.81791805119593
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_D_1753511205748",
+          "generation": 12,
+          "fitness": 0.8353373459384633,
+          "consciousness": 0.890236059353953,
+          "stability": 0.8189380158149594
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_D_1753511205748",
+          "generation": 13,
+          "fitness": 0.8656640654202021,
+          "consciousness": 0.9334642348923267,
+          "stability": 0.8189928795522926
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_D_1753511205748",
+          "generation": 14,
+          "fitness": 0.8936695021856381,
+          "consciousness": 0.9728056243930056,
+          "stability": 0.8177681784491136
+        }
+      ],
+      "finalState": {
+        "type": "completion",
+        "organism": "Organism_D_1753511205748",
+        "transcended": true,
+        "finalGeneration": 14,
+        "finalState": {
+          "name": "Organism_D_1753511205748",
+          "fitness": 0.8936695021856381,
+          "consciousness": 0.9728056243930056,
+          "stability": 0.8177681784491136,
+          "dna": {
+            "domain": "research",
+            "evolution_rate": "conservative",
+            "consciousness_target": 0.9434006629799696,
+            "max_generations": 24
+          },
+          "generation": 1
+        }
+      }
+    },
+    {
+      "organism": "Organism_E_1753511205748",
+      "success": true,
+      "results": [
+        {
+          "type": "progress",
+          "organism": "Organism_E_1753511205748",
+          "generation": 1,
+          "fitness": 0.5977103290750296,
+          "consciousness": 0.3973336684393237,
+          "stability": 0.7570518188505868
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_E_1753511205748",
+          "generation": 2,
+          "fitness": 0.6225256530350517,
+          "consciousness": 0.4435792376710194,
+          "stability": 0.7570907387773141
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_E_1753511205748",
+          "generation": 3,
+          "fitness": 0.6426706854541783,
+          "consciousness": 0.4897464053001836,
+          "stability": 0.7521929672981029
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_E_1753511205748",
+          "generation": 4,
+          "fitness": 0.6615898226220609,
+          "consciousness": 0.5384911093405357,
+          "stability": 0.7493273874650161
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_E_1753511205748",
+          "generation": 5,
+          "fitness": 0.6847751660540304,
+          "consciousness": 0.570628494685725,
+          "stability": 0.7461250869048583
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_E_1753511205748",
+          "generation": 6,
+          "fitness": 0.7059872608137621,
+          "consciousness": 0.6124432420166722,
+          "stability": 0.7467803525045785
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_E_1753511205748",
+          "generation": 7,
+          "fitness": 0.7266683187784158,
+          "consciousness": 0.6390368617981107,
+          "stability": 0.7477281001305047
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_E_1753511205748",
+          "generation": 8,
+          "fitness": 0.7508359624304115,
+          "consciousness": 0.6795118523751088,
+          "stability": 0.7427484267242237
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_E_1753511205748",
+          "generation": 9,
+          "fitness": 0.7778487047559456,
+          "consciousness": 0.7201719786672377,
+          "stability": 0.7383869643497185
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_E_1753511205748",
+          "generation": 10,
+          "fitness": 0.7889942657742065,
+          "consciousness": 0.7613930334458806,
+          "stability": 0.7367634383053306
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_E_1753511205748",
+          "generation": 11,
+          "fitness": 0.8168262459607261,
+          "consciousness": 0.7859727189892948,
+          "stability": 0.7410472378162187
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_E_1753511205748",
+          "generation": 12,
+          "fitness": 0.8413574853079869,
+          "consciousness": 0.8205789732386355,
+          "stability": 0.7384311600799625
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_E_1753511205748",
+          "generation": 13,
+          "fitness": 0.8582982682996265,
+          "consciousness": 0.8503328295995132,
+          "stability": 0.7390092149937175
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_E_1753511205748",
+          "generation": 14,
+          "fitness": 0.8869754776975961,
+          "consciousness": 0.8713644689985081,
+          "stability": 0.7378445715625838
+        },
+        {
+          "type": "progress",
+          "organism": "Organism_E_1753511205748",
+          "generation": 15,
+          "fitness": 0.8987683876496874,
+          "consciousness": 0.9077406678664333,
+          "stability": 0.7407567489985091
+        }
+      ],
+      "finalState": {
+        "type": "completion",
+        "organism": "Organism_E_1753511205748",
+        "transcended": true,
+        "finalGeneration": 15,
+        "finalState": {
+          "name": "Organism_E_1753511205748",
+          "fitness": 0.8987683876496874,
+          "consciousness": 0.9077406678664333,
+          "stability": 0.7407567489985091,
+          "dna": {
+            "domain": "gaming",
+            "evolution_rate": "conservative",
+            "consciousness_target": 0.875569833245407,
+            "max_generations": 19
+          },
+          "generation": 1
+        }
+      }
+    }
+  ]
+}

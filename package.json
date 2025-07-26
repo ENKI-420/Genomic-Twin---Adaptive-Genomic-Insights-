@@ -9,7 +9,10 @@
     "meta": "node meta_cognition_agent.js",
     "lineage": "node lineage_generator.js",
     "serve": "python3 -m http.server 8000",
-    "test": "echo \"Test functionality available\" && exit 0"
+    "test": "node test_integration.js",
+    "parallel-evolution": "node organism_evolution_worker.js",
+    "collaboration": "node collaboration_controller.js",
+    "evolve": "node evolution_engine.js"
   },
   "dependencies": {
     "ws": "^8.14.2"

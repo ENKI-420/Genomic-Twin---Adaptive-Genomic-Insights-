@@ -2,6 +2,8 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const { validateRepoOperations } = require('./safety_checks');
+const bus = require('./event_bus');
 
 const mutationMethods = {
   /**
@@ -11,6 +13,20 @@ const mutationMethods = {
    */
   async generateTerraformMultiCloud(organismState) {
     console.log("[CloudArchitectAgent] ACTION: Generating dynamic multi-cloud infrastructure...");
+
+    // Validate repository operations before generation
+    const repoPath = path.resolve(__dirname);
+    const validation = await validateRepoOperations(repoPath);
+    if (!validation.passed) {
+      const errorMsg = `Repository validation failed: ${validation.errors.join(', ')}`;
+      console.error("[CloudArchitectAgent] ERROR:", errorMsg);
+      bus.emit('terraformGenerationFailed', { 
+        reason: 'repository_validation_failed', 
+        errors: validation.errors,
+        organism: organismState.name 
+      });
+      throw new Error(errorMsg);
+    }
 
     const { dna, name } = organismState;
 
@@ -136,8 +152,22 @@ output "eks_cluster_name" {
     try {
       fs.writeFileSync(outputPath, terraformHCL.trim());
       console.log(`[CloudArchitectAgent] SUCCESS: Terraform config written to ${outputPath}`);
+      
+      // Emit successful generation event
+      bus.emit('terraformGenerated', {
+        organism: name,
+        outputPath,
+        dna: dna,
+        timestamp: Date.now()
+      });
+      
     } catch (err) {
       console.error("[CloudArchitectAgent] ERROR writing Terraform file:", err);
+      bus.emit('terraformGenerationFailed', {
+        reason: 'file_write_error',
+        error: err.message,
+        organism: name
+      });
       throw err;
     }
 
