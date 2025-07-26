@@ -1,0 +1,125 @@
+name: DNAos Evolution Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'evolve.js'
+      - '.github/workflows/dnaos-evolution.yml'
+  workflow_dispatch:
+    inputs:
+      evolution_mode:
+        description: 'Evolution mode'
+        required: true
+        default: 'simulation'
+        type: choice
+        options:
+        - simulation
+        - production
+
+jobs:
+  evolution-cycle:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Safety Protocol Tests
+        run: node test_safety_protocols.js
+
+      - name: Evolution - Simulation Mode
+        if: github.event.inputs.evolution_mode == 'simulation' || github.event_name == 'push'
+        run: npm run evolve:simulation
+        
+      - name: Evolution - Production Mode
+        if: github.event.inputs.evolution_mode == 'production' && github.event_name == 'workflow_dispatch'
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run evolve:production
+
+      - name: Validate Terraform Configuration
+        if: always()
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Terraform Format Check
+        if: always()
+        run: |
+          if [ -f main.tf ]; then
+            terraform fmt -check main.tf || echo "Terraform formatting issues detected"
+          fi
+
+      - name: Terraform Validate
+        if: always()
+        run: |
+          if [ -f main.tf ]; then
+            terraform init -backend=false
+            terraform validate
+          fi
+
+      - name: Commit Generated Artifacts
+        if: github.event.inputs.evolution_mode == 'production' || github.event_name == 'push'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          if [ -f genetic_state.json ]; then
+            git add genetic_state.json
+          fi
+          
+          if [ -f main.tf ]; then
+            git add main.tf
+          fi
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-generated: Evolution cycle completed - $(date)"
+            git push
+          fi
+
+      - name: Upload Evolution Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evolution-artifacts-${{ github.run_number }}
+          path: |
+            genetic_state.json
+            main.tf
+            test_safety_protocols.js
+          retention-days: 30
+
+      - name: Evolution Summary
+        if: always()
+        run: |
+          echo "## 🧬 Evolution Cycle Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f genetic_state.json ]; then
+            echo "### Genetic State" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
+            head -15 genetic_state.json >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -f main.tf ]; then
+            echo "### Infrastructure Generated" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Terraform configuration successfully generated" >> $GITHUB_STEP_SUMMARY
+            echo "📄 File: main.tf" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "### Evolution Mode" >> $GITHUB_STEP_SUMMARY
+          echo "Mode: ${{ github.event.inputs.evolution_mode || 'simulation (automatic)' }}" >> $GITHUB_STEP_SUMMARY

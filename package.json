@@ -5,11 +5,15 @@
   "main": "app.py",
   "scripts": {
     "start": "node cloud_architect_agent.js",
+    "evolve": "node evolve.js",
+    "evolve:production": "SIMULATION_MODE=false node evolve.js",
+    "evolve:simulation": "SIMULATION_MODE=true node evolve.js",
     "bio": "node biography_agent.js",
     "meta": "node meta_cognition_agent.js",
     "lineage": "node lineage_generator.js",
     "serve": "python3 -m http.server 8000",
-    "test": "echo \"Test functionality available\" && exit 0"
+    "test": "node test_safety_protocols.js",
+    "test:safety": "node test_safety_protocols.js"
   },
   "dependencies": {
     "ws": "^8.14.2"
