@@ -1,12 +1,14 @@
 {
-  "name": "genomic-twin-adaptive-insights",
-  "version": "1.0.0",
-  "description": "Genomic Twin platform with adaptive AI-driven insights and cloud infrastructure management",
-  "main": "app.py",
+  "name": "dna-lang-autonomous-bio-digital-platform",
+  "version": "1.0.0", 
+  "description": "An AI-powered platform that creates living digital twins—self-evolving, self-managing software organisms that provide adaptive genomic insights",
+  "main": "backend/evolution_engine.js",
   "scripts": {
-    "start": "node cloud_architect_agent.js",
-    "bio": "node biography_agent.js",
-    "meta": "node meta_cognition_agent.js",
+    "start": "node backend/evolution_engine.js",
+    "start:backend": "node backend/evolution_engine.js",
+    "bio": "node backend/agents/biography_agent.js",
+    "meta": "node backend/agents/meta_cognition_agent.js",
+    "architect": "node backend/agents/cloud_architect_agent.js",
     "lineage": "node lineage_generator.js",
     "serve": "python3 -m http.server 8000",
     "test": "echo \"Test functionality available\" && exit 0"
@@ -17,11 +19,13 @@
   "devDependencies": {},
   "keywords": [
     "genomics",
-    "ai",
-    "terraform",
-    "cloud",
+    "ai", 
+    "digital-twins",
+    "autonomous",
     "evolution",
-    "digital-twin"
+    "cloud",
+    "terraform",
+    "bio-digital"
   ],
   "author": "ENKI-420",
   "license": "MIT"
