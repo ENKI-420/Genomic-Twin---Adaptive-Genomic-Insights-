@@ -1,44 +1,44 @@
 {
   "tokenomics_engine": "TokenomicsCore",
-  "generated_at": "2025-07-29T20:07:46.656Z",
+  "generated_at": "2025-07-29T20:29:07.610Z",
   "metrics": {
-    "liquidity_ratio": 0.8778695104817709,
-    "apr": 0.13110858923099933,
-    "participation_rate": 0.7447429850361976,
-    "treasury_efficiency": 0.8444647254071912,
-    "token_price": 1.0089927048288825,
-    "total_value_locked": 1080073.188173703
+    "liquidity_ratio": 0.9004718513250154,
+    "apr": 0.13275028556077662,
+    "participation_rate": 0.7355839359357094,
+    "treasury_efficiency": 0.8637091521452074,
+    "token_price": 1.0093188538827056,
+    "total_value_locked": 1126469.4629318204
   },
   "pools": [
     {
       "name": "USDC/TOKEN",
-      "liquidity": 432029.2752694812,
-      "apr": 0.1573303070771992
+      "liquidity": 450587.7851727282,
+      "apr": 0.15930034267293194
     },
     {
       "name": "ETH/TOKEN",
-      "liquidity": 324021.95645211084,
-      "apr": 0.14421944815409926
+      "liquidity": 337940.8388795461,
+      "apr": 0.1460253141168543
     },
     {
       "name": "BTC/TOKEN",
-      "liquidity": 216014.6376347406,
-      "apr": 0.1179977303078994
+      "liquidity": 225293.8925863641,
+      "apr": 0.11947525700469895
     },
     {
       "name": "STAKING",
-      "liquidity": 108007.3188173703,
-      "apr": 0.196662883846499
+      "liquidity": 112646.94629318205,
+      "apr": 0.19912542834116492
     }
   ],
   "governance": {
-    "active_proposals": 3,
-    "participation_rate": 0.7447429850361976,
-    "voting_power_distributed": 0.5957943880289581
+    "active_proposals": 1,
+    "participation_rate": 0.7355839359357094,
+    "voting_power_distributed": 0.5884671487485675
   },
   "treasury": {
-    "total_assets": 162010.97822605542,
-    "efficiency_score": 0.8444647254071912,
+    "total_assets": 168970.41943977305,
+    "efficiency_score": 0.8637091521452074,
     "asset_allocation": {
       "stablecoins": 0.4,
       "eth": 0.3,

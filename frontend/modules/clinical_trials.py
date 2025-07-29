@@ -106,27 +106,5 @@ def integrate_trials_into_report(ai_report, trials):
     
     return f"{ai_report}\n\n{trial_section}"
 
-# Streamlit UI Additions
-if selected_option == "Genomic AI Analysis":
-    # ... previous UI code ...
-    
-    with st.expander("🌍 Clinical Trial Search Parameters"):
-        cols = st.columns(2)
-        with cols[0]:
-            location = st.text_input("Search Radius (City, State)", "New York, NY")
-        with cols[1]:
-            trial_phase = st.multiselect("Trial Phase", ["I", "II", "III", "IV"], ["II", "III"])
-            
-    # ... analysis button ...
-    
-    if analysis:
-        st.subheader("📊 Genomic Insights Report")
-        st.markdown(analysis)
-        
-        # Interactive trial explorer
-        st.subheader("🗺️ Trial Map Visualization")
-        trials = parse_trials_from_report(analysis)  # Implement parsing logic
-        if trials:
-            plot_trial_map(trials)
-        else:
-            st.info("No trial geographic data available")
+# Note: Streamlit UI code should be in the main app, not in module files
+# Clinical trials search and matching functionality is available via find_trials() function
