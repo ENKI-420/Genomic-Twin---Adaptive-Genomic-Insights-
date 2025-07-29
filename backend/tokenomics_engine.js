@@ -217,6 +217,11 @@ class TokenomicsEvolutionEngine {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TokenomicsCore Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <meta name="description" content="TokenomicsCore - Autonomous DeFi Management Dashboard">
+    <meta name="keywords" content="DeFi, tokenomics, autonomous, DNA-Lang, evolution">
+    <meta name="author" content="DNA-Lang Platform">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

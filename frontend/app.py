@@ -13,6 +13,14 @@ load_dotenv()
 # Constants
 APP_VERSION = "v3.3"
 
+# Configure Streamlit page with favicon
+st.set_page_config(
+    page_title="DNA-Lang Autonomous Bio-Digital Platform",
+    page_icon="🧬",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 # Streamlit UI
 st.title("🚀 DNA-Lang Autonomous Bio-Digital Platform")
 st.caption(f"Precision Medicine & Autonomous DeFi Platform {APP_VERSION}")
