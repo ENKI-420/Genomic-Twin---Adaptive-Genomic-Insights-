@@ -5,36 +5,47 @@ from modules.beaker_report import fetch_beaker_data
 from modules.clinical_trials import find_trials
 from modules.utils import authenticate_epic, fetch_patient_data, ai_chat_response
 from modules.digital_twin import generate_digital_twin
+from modules.tokenomics_dashboard import tokenomics_dashboard
 
 # Load environment variables
 load_dotenv()
 
 # Constants
-APP_VERSION = "v3.2"
+APP_VERSION = "v3.3"
 
 # Streamlit UI
-st.title("🚀 Agile Oncology AI Platform")
-st.caption("Precision Medicine Platform v3.2")
+st.title("🚀 DNA-Lang Autonomous Bio-Digital Platform")
+st.caption(f"Precision Medicine & Autonomous DeFi Platform {APP_VERSION}")
 
 # Sidebar UI
 with st.sidebar:
-    st.header("🧬 Agile Oncology AI")
-    analysis_mode = st.radio("Select Analysis Mode", ["Genomic Analysis", "Beaker Reports", "Clinical Trial Matching", "AI Chatbot"])
+    st.header("🧬 DNA-Lang Platform")
+    analysis_mode = st.radio("Select Module", [
+        "Genomic Analysis", 
+        "Beaker Reports", 
+        "Clinical Trial Matching", 
+        "AI Chatbot",
+        "Tokenomics Dashboard"
+    ])
 
-    st.subheader("🔑 Epic EHR Authentication")
-    username = st.text_input("Epic Username")
-    password = st.text_input("Epic Password", type="password")
-    if st.button("Login"):
-        token = authenticate_epic(username, password)
-        if token:
-            st.session_state['token'] = token
-            st.success("Authenticated with Epic!")
-        else:
-            st.error("Authentication failed.")
+    if analysis_mode not in ["Tokenomics Dashboard"]:
+        st.subheader("🔑 Epic EHR Authentication")
+        username = st.text_input("Epic Username")
+        password = st.text_input("Epic Password", type="password")
+        if st.button("Login"):
+            token = authenticate_epic(username, password)
+            if token:
+                st.session_state['token'] = token
+                st.success("Authenticated with Epic!")
+            else:
+                st.error("Authentication failed.")
 
 # Main UI logic
-if 'token' in st.session_state:
-    patient_id = st.text_input("Enter Patient ID")
+if analysis_mode == "Tokenomics Dashboard":
+    tokenomics_dashboard()
+elif 'token' in st.session_state or analysis_mode in ["AI Chatbot"]:
+    if analysis_mode != "AI Chatbot":
+        patient_id = st.text_input("Enter Patient ID")
 
     if analysis_mode == "Genomic Analysis":
         uploaded_file = st.file_uploader("Upload Genomic File (VCF/CSV)")
@@ -67,12 +78,12 @@ if 'token' in st.session_state:
             st.json(trials)
 
     elif analysis_mode == "AI Chatbot":
-        user_query = st.text_area("Ask Agile Oncology AI")
+        user_query = st.text_area("Ask DNA-Lang AI")
         if st.button("Get AI Response"):
             response = ai_chat_response(user_query)
             st.write(response)
 
 else:
-    st.info("Please authenticate via the sidebar to start using the platform.")
+    st.info("Please authenticate via the sidebar to start using the genomic platform.")
 
-st.caption("🔬 Agile Oncology AI | Powered by EPIC EHR | Secure & HIPAA-compliant")
+st.caption("🔬 DNA-Lang Autonomous Platform | Powered by EPIC EHR & Autonomous Evolution | Secure & HIPAA-compliant")
