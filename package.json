@@ -3,6 +3,9 @@
   "version": "1.0.0", 
   "description": "An AI-powered platform that creates living digital twins—self-evolving, self-managing software organisms that provide adaptive genomic insights",
   "main": "backend/evolution_engine.js",
+  "bin": {
+    "dna": "./bin/dna"
+  },
   "scripts": {
     "start": "node backend/evolution_engine.js",
     "start:backend": "node backend/evolution_engine.js",
@@ -13,7 +16,8 @@
     "architect": "node backend/agents/cloud_architect_agent.js",
     "lineage": "node lineage_generator.js",
     "serve": "python3 -m http.server 8000",
-    "test": "echo \"Test functionality available\" && exit 0"
+    "test": "node test/cli-test.js",
+    "test:cli": "node test/cli-test.js"
   },
   "dependencies": {
     "ws": "^8.14.2"
