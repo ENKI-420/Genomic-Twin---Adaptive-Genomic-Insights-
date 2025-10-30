@@ -11,6 +11,7 @@ from .fidelity_benchmarking import (
     calculate_qwc_target_cost,
     calculate_hardware_cost,
     calculate_fidelity_deviation,
+    benchmark_circuit_fidelity,
 )
 from .optimizer_feedback_api import OptimizerFeedbackAPI
 
@@ -21,5 +22,6 @@ __all__ = [
     "calculate_qwc_target_cost",
     "calculate_hardware_cost",
     "calculate_fidelity_deviation",
+    "benchmark_circuit_fidelity",
     "OptimizerFeedbackAPI",
 ]

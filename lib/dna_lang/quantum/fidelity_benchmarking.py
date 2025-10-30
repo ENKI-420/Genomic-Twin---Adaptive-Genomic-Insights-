@@ -16,7 +16,10 @@ Mathematical Framework:
 import numpy as np
 from typing import Dict, Optional, List, Union
 from qiskit import QuantumCircuit
-from qiskit.primitives import Estimator
+try:
+    from qiskit.primitives import StatevectorEstimator as Estimator
+except ImportError:
+    from qiskit.primitives import Estimator
 from qiskit.quantum_info import SparsePauliOp
 
 
@@ -58,10 +61,16 @@ def calculate_qwc_target_cost(
         circuit = circuit.assign_parameters(parameters)
     
     # Run noiseless simulation
-    job = estimator.run(circuit, observable)
-    result = job.result()
-    
-    return result.values[0]
+    try:
+        # New API (V2)
+        job = estimator.run([(circuit, observable)])
+        result = job.result()
+        return float(result[0].data.evs)
+    except (AttributeError, TypeError, IndexError):
+        # Old API (V1) or fallback
+        job = estimator.run(circuit, observable)
+        result = job.result()
+        return result.values[0]
 
 
 def calculate_hardware_cost(
@@ -139,10 +148,16 @@ def calculate_hardware_cost(
         if parameters is not None:
             circuit = circuit.assign_parameters(parameters)
         
-        job = estimator.run(circuit, observable, shots=shots)
-        result = job.result()
-        
-        return result.values[0]
+        try:
+            # New API (V2)
+            job = estimator.run([(circuit, observable)])
+            result = job.result()
+            return float(result[0].data.evs)
+        except (AttributeError, TypeError, IndexError):
+            # Old API (V1)
+            job = estimator.run(circuit, observable, shots=shots)
+            result = job.result()
+            return result.values[0]
 
 
 def calculate_fidelity_deviation(

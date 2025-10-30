@@ -18,7 +18,10 @@ import numpy as np
 from typing import List, Dict, Optional, Callable
 from qiskit import QuantumCircuit
 from qiskit.circuit import Parameter
-from qiskit.primitives import Estimator
+try:
+    from qiskit.primitives import StatevectorEstimator as Estimator
+except ImportError:
+    from qiskit.primitives import Estimator
 from qiskit.quantum_info import SparsePauliOp
 
 
@@ -108,11 +111,19 @@ def diagnose_barren_plateau(
             circuit_minus = circuit.assign_parameters(param_dict_minus)
             
             # Compute expectation values
-            job = estimator.run([circuit_plus, circuit_minus], [observable, observable])
-            result = job.result()
-            
-            exp_plus = result.values[0]
-            exp_minus = result.values[1]
+            try:
+                # New API (V2)
+                job = estimator.run([(circuit_plus, observable), (circuit_minus, observable)])
+                result = job.result()
+                # Access expectation values - evs is a scalar in V2
+                exp_plus = float(result[0].data.evs)
+                exp_minus = float(result[1].data.evs)
+            except (AttributeError, TypeError, IndexError):
+                # Old API (V1) or fallback
+                job = estimator.run([circuit_plus, circuit_minus], [observable, observable])
+                result = job.result()
+                exp_plus = result.values[0]
+                exp_minus = result.values[1]
             
             # Gradient via parameter shift rule
             gradient = (exp_plus - exp_minus) / (2 * np.sin(epsilon))

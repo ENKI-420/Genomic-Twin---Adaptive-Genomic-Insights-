@@ -14,6 +14,10 @@ Usage:
 
 import sys
 import os
+import warnings
+
+# Suppress deprecation warnings for cleaner output
+warnings.filterwarnings('ignore', category=DeprecationWarning)
 
 # Add lib to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'lib'))
@@ -260,10 +264,16 @@ def demo_optimizer_feedback_loop():
     # Get optimization summary
     summary = feedback_api.get_optimization_summary()
     print(f"\n📊 Optimization Summary:")
-    print(f"  Best Cost: {summary['best_cost']:.6f}")
-    print(f"  Best Fidelity: {summary['best_fidelity']:.6f}")
-    print(f"  Average Fidelity: {summary['avg_fidelity']:.6f}")
-    print(f"  Cost Improvement: {summary['cost_improvement']*100:.2f}%")
+    if summary['best_cost'] is not None:
+        print(f"  Best Cost: {summary['best_cost']:.6f}")
+        print(f"  Best Fidelity: {summary['best_fidelity']:.6f}")
+    else:
+        print(f"  Best Cost: N/A")
+        print(f"  Best Fidelity: N/A")
+    if summary['avg_fidelity'] is not None:
+        print(f"  Average Fidelity: {summary['avg_fidelity']:.6f}")
+    if summary['cost_improvement'] is not None:
+        print(f"  Cost Improvement: {summary['cost_improvement']*100:.2f}%")
     
     print("\n💡 Key Insight:")
     print("  The optimizer balances cost minimization with fidelity")
