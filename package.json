@@ -13,6 +13,12 @@
     "architect": "node backend/agents/cloud_architect_agent.js",
     "lineage": "node lineage_generator.js",
     "serve": "python3 -m http.server 8000",
+    "aura:deploy": "./deploy_aura.sh",
+    "aura:cli": "python3 dnalang_aura_cli.py",
+    "aura:translate": "python3 dnalang_aura_cli.py translate",
+    "aura:search": "python3 dnalang_aura_cli.py ricci-flow",
+    "aura:compile": "python3 dnalang_aura_cli.py compile",
+    "aura:organism": "python3 dnalang_aura_cli.py organism",
     "test": "echo \"Test functionality available\" && exit 0"
   },
   "dependencies": {
@@ -27,7 +33,12 @@
     "evolution",
     "cloud",
     "terraform",
-    "bio-digital"
+    "bio-digital",
+    "quantum-computing",
+    "consciousness",
+    "aura",
+    "ricci-flow",
+    "entanglement"
   ],
   "author": "ENKI-420",
   "license": "MIT"
