@@ -173,6 +173,8 @@ Explore our comprehensive example organisms:
 - **[WebScaler](examples/WebScaler.dna)**: Auto-scaling web infrastructure
 - **[GenomicAnalyzer](examples/GenomicAnalyzer.dna)**: Genomic variant detection
 - **[DrugDiscoveryPipeline](examples/DrugDiscoveryPipeline.dna)**: Pharmaceutical research
+- **[QuantumBenchmarkExample](examples/QuantumBenchmarkExample.dna)**: Quantum algorithm fitness evaluation
+- **[BenchmarkingSuite](BenchmarkingSuite.dna)**: Quantum algorithm benchmarking system
 - **[AdvancedConsciousness](AdvancedConsciousness.dna)**: Consciousness evolution demo
 
 ## 📚 Documentation
@@ -184,6 +186,7 @@ Comprehensive documentation and guides:
 - **[Getting Started](docs/getting-started.md)**: Step-by-step tutorials
 - **[CLI Reference](docs/cli-reference.md)**: Node.js CLI commands
 - **[Enhanced CLI Guide](docs/enhanced-cli-guide.md)**: GPT integration & quantum features
+- **[Quantum Benchmarking Suite](docs/quantum-benchmarking-suite.md)**: Algorithm fitness evaluation
 - **[API Documentation](docs/api.md)**: RESTful API reference
 - **[Deployment Guide](docs/deployment.md)**: Production deployment
 
