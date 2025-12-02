@@ -103,3 +103,35 @@ if __name__ == "__main__":
     print(dist_results)
     
     simulator.plot_results(pk_results, dist_results)  # Visualize results
+
+def simulate_delivery(particle_type="lipid", target_organ="liver", dose=100):
+    """
+    Simplified simulation function for the main application
+    """
+    try:
+        params = {
+            'drug_name': f'{particle_type}_delivery',
+            'dose': dose,
+            'target_organ': target_organ,
+            'distribution': {'Liver': 50, 'Kidney': 30, 'Lung': 20},
+            'size': 80,
+            'charge': -15
+        }
+        
+        simulator = NanoparticleDeliverySimulator(**params)
+        pk_results = simulator.simulate_pk()
+        dist_results = simulator.simulate_distribution()
+        
+        return {
+            'success': True,
+            'particle_type': particle_type,
+            'target_organ': target_organ,
+            'dose': dose,
+            'max_concentration': pk_results['Concentration'].max(),
+            'distribution': dist_results
+        }
+    except Exception as e:
+        return {
+            'success': False,
+            'error': str(e)
+        }
