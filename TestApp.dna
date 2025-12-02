@@ -1,0 +1,17 @@
+organism TestApp {
+    dna {
+        domain: "test"
+        scale: "small"
+        security_level: "medium"
+        evolution_rate: "slow"
+        immune_system: enabled
+    }
+    
+    genome {
+        trait test_trait: active
+    }
+    
+    agents {
+        architect: ArchitectAgent(focus: design)
+    }
+}

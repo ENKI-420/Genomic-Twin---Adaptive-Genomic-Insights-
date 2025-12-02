@@ -25,6 +25,30 @@ Deploy your first autonomous organism in minutes:
 
 [![Open in Cloud Shell](https://gstatic.com/cloudssh/images/open-in-cloud-shell.svg)](https://shell.cloud.google.com/cloudshell_open?git_repo=https://github.com/ENKI-420/Genomic-Twin---Adaptive-Genomic-Insights-&tutorial=README.md&shellonly=true)
 
+### One-Liner Installation (Recommended)
+
+Install DNA-Lang with enhanced features including GPT integration and quantum optimization:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ENKI-420/Genomic-Twin---Adaptive-Genomic-Insights-/main/install-dnalang.sh | bash
+```
+
+Then use the enhanced CLI:
+
+```bash
+# Compile with quantum optimization
+dna compile TestApp.dna true production
+
+# Evolve with AI assistance
+dna evolve TestApp latency 100
+
+# Deploy to cloud
+dna deploy SecureWebApp gcp dnalang.app
+
+# Get GPT-powered help
+dna gpt "How do I optimize for throughput?"
+```
+
 ### Local Development Setup
 
 ```bash
@@ -149,6 +173,8 @@ Explore our comprehensive example organisms:
 - **[WebScaler](examples/WebScaler.dna)**: Auto-scaling web infrastructure
 - **[GenomicAnalyzer](examples/GenomicAnalyzer.dna)**: Genomic variant detection
 - **[DrugDiscoveryPipeline](examples/DrugDiscoveryPipeline.dna)**: Pharmaceutical research
+- **[QuantumBenchmarkExample](examples/QuantumBenchmarkExample.dna)**: Quantum algorithm fitness evaluation
+- **[BenchmarkingSuite](BenchmarkingSuite.dna)**: Quantum algorithm benchmarking system
 - **[AdvancedConsciousness](AdvancedConsciousness.dna)**: Consciousness evolution demo
 
 ## 📚 Documentation
@@ -158,6 +184,9 @@ Comprehensive documentation and guides:
 - **[Language Reference](docs/language-reference.md)**: Complete DNA-Lang syntax
 - **[Architecture Guide](docs/architecture.md)**: Platform architecture deep-dive  
 - **[Getting Started](docs/getting-started.md)**: Step-by-step tutorials
+- **[CLI Reference](docs/cli-reference.md)**: Node.js CLI commands
+- **[Enhanced CLI Guide](docs/enhanced-cli-guide.md)**: GPT integration & quantum features
+- **[Quantum Benchmarking Suite](docs/quantum-benchmarking-suite.md)**: Algorithm fitness evaluation
 - **[API Documentation](docs/api.md)**: RESTful API reference
 - **[Deployment Guide](docs/deployment.md)**: Production deployment
 

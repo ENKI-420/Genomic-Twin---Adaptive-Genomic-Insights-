@@ -96,6 +96,33 @@ Demonstrates the most complex DNA-Lang capabilities:
 npm run deploy examples/DrugDiscoveryPipeline.dna --environment pharma
 ```
 
+### ⚛️ [QuantumBenchmarkExample.dna](QuantumBenchmarkExample.dna) - Advanced Level
+
+**Use Case**: Quantum algorithm fitness evaluation and evolutionary selection
+
+Demonstrates integration with the BenchmarkingSuite organism for quantum computing:
+- Automated quantum algorithm testing
+- Multi-dimensional fitness scoring (fidelity, speed, resources)
+- Evolutionary breeding guidance
+- Population fitness analysis
+
+**Key Features**:
+- Grover's algorithm benchmark example
+- Fidelity evaluation using Hellinger distance
+- Speed and resource efficiency scoring
+- Automated evolutionary decision-making
+- Population diversity tracking
+
+**Related**: Works with [BenchmarkingSuite.dna](../BenchmarkingSuite.dna)
+
+```bash
+# Compile the benchmarking suite
+dna compile BenchmarkingSuite.dna --optimize --target=production
+
+# Run the quantum benchmark example
+dna evolve QuantumBenchmarkExample --optimize-for=fitness --generations=50
+```
+
 ## Quick Start Guide
 
 ### 1. Choose Your Starting Point
@@ -151,6 +178,7 @@ The examples are designed to show increasing complexity:
 2. **WebScaler**: Multi-gene organisms, safety checks, cost optimization
 3. **GenomicAnalyzer**: Domain expertise, compliance, federated operations
 4. **DrugDiscoveryPipeline**: Multi-stage pipelines, AI integration, complex workflows
+5. **QuantumBenchmarkExample**: Quantum computing, fitness evaluation, evolutionary selection
 
 ### Common Patterns
 
