@@ -1,0 +1,247 @@
+/**
+ * Example: Quantum Algorithm Benchmarking
+ * 
+ * This example demonstrates how to use the BenchmarkingSuite organism
+ * to evaluate quantum algorithms and guide evolutionary selection.
+ */
+
+ORGANISM QuantumAlgorithmBenchmarkExample {
+    
+    DNA {
+        domain: "quantum_algorithm_testing"
+        version: "1.0.0"
+        security_level: "high"
+        evolution_rate: "moderate"
+        
+        // Reference to benchmarking suite
+        benchmarking_suite: "BenchmarkingSuite"
+    }
+    
+    GENOME example_genome {
+        // Example quantum package for testing
+        GENE sample_algorithm {
+            purpose: "Grover's search algorithm implementation"
+            expression_level: 1.0
+            
+            // Package metadata
+            package_info: {
+                package_id: "grover_search_v1",
+                algorithm_type: "search",
+                expected_speedup: "quadratic"
+            }
+            
+            MUTATIONS {
+                optimizeCircuit {
+                    trigger_conditions: [
+                        {metric: "fitness_score", operator: "<", value: 0.7}
+                    ]
+                    methods: ["reduceGateCount", "optimizeDepth"]
+                }
+            }
+        }
+    }
+    
+    CELLULAR_FABRIC {
+        
+        CELL ExampleBenchmarkRunner {
+            STATE: |setup⟩ -> |running⟩ -> |analyzed⟩
+            
+            FUNCTION setupBenchmarkTest() -> void {
+                PRINT "🔧 Setting up benchmark test for Grover's algorithm"
+                
+                // Define test protocol for Grover's search
+                protocol = {
+                    package_id: "grover_search_v1",
+                    expected_distribution: {
+                        // For 3-qubit Grover searching for |101⟩
+                        "000": 0.05,
+                        "001": 0.05,
+                        "010": 0.05,
+                        "011": 0.05,
+                        "100": 0.05,
+                        "101": 0.65,  // Target state should have high probability
+                        "110": 0.05,
+                        "111": 0.05
+                    },
+                    baseline_time: 2.5,  // seconds
+                    resource_limits: {
+                        max_qubits: 10,
+                        max_gates: 100,
+                        max_depth: 50
+                    }
+                }
+                
+                // Add test to benchmarking queue
+                INVOKE BenchmarkingSuite.GENOME.pending_tests.addTestToQueue("grover_search_v1")
+                
+                // Register protocol
+                INVOKE BenchmarkingSuite.GENOME.test_protocols.updateProtocol("grover_search_v1", protocol)
+                
+                PRINT "✅ Test configured and added to queue"
+            }
+            
+            FUNCTION runBenchmark() -> FitnessScore {
+                PRINT "\n🚀 Triggering benchmark suite..."
+                
+                // Trigger the benchmarking suite's evolution cycle
+                INVOKE BenchmarkingSuite.LIFECYCLE.ON_EVOLUTION()
+                
+                // Retrieve results from historical metrics
+                results = READ BenchmarkingSuite.GENOME.historical_metrics["grover_search_v1"]
+                
+                PRINT "\n📊 Benchmark Results:"
+                PRINT "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                PRINT "Package: grover_search_v1"
+                PRINT "Fitness Score: ${results.fitness.total:.4f}"
+                PRINT "\nBreakdown:"
+                PRINT "  Fidelity: ${results.fitness.raw_fidelity:.4f} (weight: 0.50)"
+                PRINT "  Speed: ${results.fitness.raw_speed:.4f} (weight: 0.30)"
+                PRINT "  Resources: ${results.fitness.raw_resources:.4f} (weight: 0.20)"
+                PRINT "\nExecution Metrics:"
+                PRINT "  Time: ${results.metrics.execution_time:.3f}s"
+                PRINT "  Qubits: ${results.metrics.qubit_count}"
+                PRINT "  Gates: ${results.metrics.gate_count}"
+                PRINT "  Depth: ${results.metrics.circuit_depth}"
+                PRINT "  Error Rate: ${results.metrics.error_rate:.4f}"
+                PRINT "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                
+                RETURN results.fitness
+            }
+            
+            FUNCTION makeEvolutionaryDecision(fitness: FitnessScore) -> String {
+                PRINT "\n🧬 Evolutionary Decision:"
+                
+                // Decision thresholds
+                excellent_threshold = 0.85
+                good_threshold = 0.70
+                acceptable_threshold = 0.50
+                
+                IF fitness.total >= excellent_threshold {
+                    decision = "PROMOTE_TO_PRODUCTION"
+                    PRINT "   ✅ PROMOTE TO PRODUCTION"
+                    PRINT "   Algorithm achieves excellent fitness (${fitness.total:.4f})"
+                    PRINT "   → Deploy to production environment"
+                    PRINT "   → Use as parent for future breeding"
+                }
+                ELSE IF fitness.total >= good_threshold {
+                    decision = "BREED_FOR_IMPROVEMENT"
+                    PRINT "   🔄 BREED FOR IMPROVEMENT"
+                    PRINT "   Algorithm shows good potential (${fitness.total:.4f})"
+                    PRINT "   → Use in breeding pool"
+                    PRINT "   → Focus on improving weak components"
+                }
+                ELSE IF fitness.total >= acceptable_threshold {
+                    decision = "CONTINUE_EVOLUTION"
+                    PRINT "   ⚠️  CONTINUE EVOLUTION"
+                    PRINT "   Algorithm needs optimization (${fitness.total:.4f})"
+                    PRINT "   → Apply targeted mutations"
+                    PRINT "   → Re-benchmark after evolution"
+                }
+                ELSE {
+                    decision = "DISCARD"
+                    PRINT "   ❌ DISCARD"
+                    PRINT "   Algorithm performs below threshold (${fitness.total:.4f})"
+                    PRINT "   → Remove from population"
+                    PRINT "   → Do not use in breeding"
+                }
+                
+                RETURN decision
+            }
+        }
+        
+        CELL BreedingGuidance {
+            STATE: |analyzing⟩ -> |recommending⟩
+            
+            FUNCTION analyzePopulationFitness() -> void {
+                PRINT "\n📈 Population Fitness Analysis"
+                PRINT "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                
+                // Get all historical metrics
+                all_results = READ BenchmarkingSuite.GENOME.historical_metrics
+                
+                // Calculate population statistics
+                fitness_scores = []
+                FOR package_id, result IN all_results {
+                    fitness_scores.APPEND(result.fitness.total)
+                }
+                
+                IF fitness_scores.length() > 0 {
+                    avg_fitness = MEAN(fitness_scores)
+                    max_fitness = MAX(fitness_scores)
+                    min_fitness = MIN(fitness_scores)
+                    std_fitness = STD(fitness_scores)
+                    
+                    PRINT "Population Size: ${fitness_scores.length()}"
+                    PRINT "Average Fitness: ${avg_fitness:.4f}"
+                    PRINT "Best Fitness: ${max_fitness:.4f}"
+                    PRINT "Worst Fitness: ${min_fitness:.4f}"
+                    PRINT "Std Deviation: ${std_fitness:.4f}"
+                    
+                    // Provide breeding recommendations
+                    IF std_fitness < 0.1 {
+                        PRINT "\n💡 Recommendation: Population diversity is low"
+                        PRINT "   → Introduce new mutations"
+                        PRINT "   → Consider random breeding"
+                    }
+                    
+                    IF avg_fitness < 0.6 {
+                        PRINT "\n💡 Recommendation: Population fitness is suboptimal"
+                        PRINT "   → Increase mutation rate"
+                        PRINT "   → Focus on fidelity improvements"
+                    }
+                    
+                    IF max_fitness > 0.9 {
+                        PRINT "\n💡 Recommendation: Excellent candidate found"
+                        PRINT "   → Use as template for breeding"
+                        PRINT "   → Consider deployment"
+                    }
+                }
+                ELSE {
+                    PRINT "No benchmark data available yet"
+                }
+                
+                PRINT "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            }
+        }
+    }
+    
+    AGENTS {
+        evolution_coordinator: MetaCognitionAgent {
+            focus: "evolutionary_strategy"
+            responsibilities: [
+                "guide_breeding_decisions",
+                "track_fitness_trends",
+                "optimize_population_diversity"
+            ]
+        }
+    }
+    
+    LIFECYCLE {
+        ON_INITIALIZATION {
+            PRINT "🎯 Quantum Algorithm Benchmark Example"
+            PRINT "   This example demonstrates benchmarking workflow\n"
+        }
+        
+        ON_EVOLUTION {
+            PRINT "═══════════════════════════════════════════════════════"
+            PRINT "  Quantum Algorithm Benchmarking Workflow Example"
+            PRINT "═══════════════════════════════════════════════════════\n"
+            
+            // Step 1: Setup benchmark test
+            ExampleBenchmarkRunner.setupBenchmarkTest()
+            
+            // Step 2: Run benchmark
+            fitness = ExampleBenchmarkRunner.runBenchmark()
+            
+            // Step 3: Make evolutionary decision
+            decision = ExampleBenchmarkRunner.makeEvolutionaryDecision(fitness)
+            
+            // Step 4: Analyze population
+            BreedingGuidance.analyzePopulationFitness()
+            
+            PRINT "\n═══════════════════════════════════════════════════════"
+            PRINT "  Benchmark Workflow Complete"
+            PRINT "═══════════════════════════════════════════════════════"
+        }
+    }
+}

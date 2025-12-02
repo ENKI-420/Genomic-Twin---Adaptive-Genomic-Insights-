@@ -1,0 +1,113 @@
+# --- Organism: SimpleMonitor ---
+# A basic monitoring organism for learning DNA-Lang
+# Created: 2024-01-30 | Domain: Monitoring
+
+ORGANISM SimpleMonitor
+{
+  DNA {
+    domain: "system_monitoring"
+    security_level: "basic"
+    evolution_rate: "adaptive"
+    immune_system: "enabled"
+    consciousness_target: 0.70
+  }
+
+  GENOME {
+    GENE AlertingGene {
+      purpose: "Monitors system metrics and sends alerts when thresholds are exceeded"
+      expression_level: 1.0
+      
+      MUTATIONS {
+        cpuAlert {
+          trigger_conditions: [
+            {metric: "cpu_usage", operator: ">", value: 0.8}
+          ]
+          methods: ["send_slack_alert", "log_high_cpu"]
+          safety_level: "basic"
+          rollback_strategy: "immediate_rollback"
+          safety_check: "validateAlertThreshold"
+        }
+        
+        memoryAlert {
+          trigger_conditions: [
+            {metric: "memory_usage", operator: ">", value: 0.9}
+          ]
+          methods: ["send_email_alert", "log_memory_issue"]
+          safety_level: "basic"
+        }
+        
+        diskAlert {
+          trigger_conditions: [
+            {metric: "disk_usage", operator: ">", value: 0.85}
+          ]
+          methods: ["send_pager_alert", "cleanup_temp_files"]
+          safety_level: "medium"
+        }
+      }
+    }
+
+    GENE OptimizationGene {
+      purpose: "Optimizes system performance based on usage patterns"
+      expression_level: 0.8
+      
+      MUTATIONS {
+        optimizeResources {
+          trigger_conditions: [
+            {metric: "avg_cpu_usage", operator: "<", value: 0.3},
+            {metric: "uptime_hours", operator: ">", value: 24}
+          ]
+          methods: ["reduce_background_processes", "optimize_memory_allocation"]
+          safety_level: "basic"
+          rollback_strategy: "gradual_rollback"
+        }
+        
+        adaptToLoad {
+          trigger_conditions: [
+            {metric: "request_rate", operator: ">", value: 100},
+            {metric: "response_time", operator: ">", value: 1.0}
+          ]
+          methods: ["enable_caching", "optimize_database_queries"]
+          safety_level: "medium"
+        }
+      }
+    }
+
+    GENE LearningGene {
+      purpose: "Learns from patterns and improves monitoring accuracy"
+      expression_level: 0.6
+      
+      MUTATIONS {
+        adjustThresholds {
+          trigger_conditions: [
+            {metric: "false_positive_rate", operator: ">", value: 0.1},
+            {metric: "monitoring_days", operator: ">", value: 7}
+          ]
+          methods: ["analyze_historical_data", "update_alert_thresholds"]
+          safety_level: "low"
+          rollback_strategy: "checkpoint_rollback"
+        }
+      }
+    }
+  }
+
+  AGENTS {
+    system_monitor: MonitoringAgent(
+      interval: "60s",
+      metrics: ["cpu", "memory", "disk", "network"],
+      collection_method: "prometheus"
+    )
+    alert_manager: AlertingAgent(
+      channels: ["slack", "email", "pagerduty"],
+      escalation_timeout: "15m",
+      max_alerts_per_hour: 10
+    )
+    data_analyzer: AnalyticsAgent(
+      analysis_window: "24h",
+      pattern_detection: "enabled",
+      anomaly_detection: "basic"
+    )
+  }
+}
+
+# Organism Metadata (JSON):
+# {"name":"SimpleMonitor","created_at":"2024-01-30T10:00:00Z","domain":"system_monitoring","consciousness_target":0.70,"agents_count":3,"genes_count":3,"mutations_count":6,"security_level":"basic","status":"active","use_case":"learning_example"}
